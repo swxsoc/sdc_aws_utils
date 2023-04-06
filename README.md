@@ -1,48 +1,52 @@
-# sdc-aws-utils
+# sdc_aws_utils Python Package Library
 
-[![Release](https://img.shields.io/github/v/release/dbarrous/sdc-aws-utils)](https://img.shields.io/github/v/release/dbarrous/sdc-aws-utils)
-[![Build status](https://img.shields.io/github/actions/workflow/status/dbarrous/sdc-aws-utils/main.yml?branch=main)](https://github.com/dbarrous/sdc-aws-utils/actions/workflows/main.yml?query=branch%3Amain)
-[![codecov](https://codecov.io/gh/dbarrous/sdc-aws-utils/branch/main/graph/badge.svg)](https://codecov.io/gh/dbarrous/sdc-aws-utils)
-[![Commit activity](https://img.shields.io/github/commit-activity/m/dbarrous/sdc-aws-utils)](https://img.shields.io/github/commit-activity/m/dbarrous/sdc-aws-utils)
-[![License](https://img.shields.io/github/license/dbarrous/sdc-aws-utils)](https://img.shields.io/github/license/dbarrous/sdc-aws-utils)
+[![Release](https://img.shields.io/github/v/release/HERMES-SOC/sdc_aws_utils)](https://img.shields.io/github/v/release/HERMES-SOC/sdc_aws_utils)
+[![Build status](https://img.shields.io/github/actions/workflow/status/HERMES-SOC/sdc_aws_utils/main.yml?branch=main)](https://github.com/HERMES-SOC/sdc_aws_utils/actions/workflows/main.yml?query=branch%3Amain)
+[![codecov](https://codecov.io/gh/HERMES-SOC/sdc_aws_utils/branch/main/graph/badge.svg)](https://codecov.io/gh/HERMES-SOC/sdc_aws_utils)
+[![Commit activity](https://img.shields.io/github/commit-activity/m/HERMES-SOC/sdc_aws_utils)](https://img.shields.io/github/commit-activity/m/HERMES-SOC/sdc_aws_utils)
+[![License](https://img.shields.io/github/license/HERMES-SOC/sdc_aws_utils)](https://img.shields.io/github/license/HERMES-SOC/sdc_aws_utils)
 
-This is a Python package that includes utility functions used throughout the different pipeline repos.
+This is a Python package library that includes utility functions used throughout the different pipeline repos.
 
-- **Github repository**: <https://github.com/dbarrous/sdc-aws-utils/>
-- **Documentation** <https://dbarrous.github.io/sdc-aws-utils/>
+- **Github repository**: <https://github.com/HERMES-SOC/sdc_aws_utils/>
 
-## Getting started with your project
+## Table of Contents
 
-First, create a repository on GitHub with the same name as this project, and then run the following commands:
+- [Introduction](#introduction)
+- [Installation](#installation)
+- [Structure](#structure)
+- [Contributing](#contributing)
+- [License](#license)
 
-``` bash
-git init -b main
-git add .
-git commit -m "init commit"
-git remote add origin git@github.com:dbarrous/sdc-aws-utils.git
-git push -u origin main
-```
+## Introduction
 
-Finally, install the environment and the pre-commit hooks with 
+The `sdc_aws_utils` library provides utility functions for working with AWS services like S3 and Timestream, Slack notifications, logging, and pipeline repository configurations. It is designed to be a simple-to-use and efficient library to enhance your projects that rely on AWS services and improve the overall project management experience.
+
+## Installation
+
+To install the `sdc_aws_utils` library directly from the GitHub repository, run the following command:
 
 ```bash
-make install
+pip install git+https://github.com/HERMES-SOC/sdc_aws_utils.git
 ```
 
-You are now ready to start development on your project! The CI/CD
-pipeline will be triggered when you open a pull request, merge to main,
-or when you create a new release.
+## Structure
 
-To finalize the set-up for publishing to PyPi or Artifactory, see
-[here](https://fpgmaas.github.io/cookiecutter-poetry/features/publishing/#set-up-for-pypi).
-For activating the automatic documentation with MkDocs, see
-[here](https://fpgmaas.github.io/cookiecutter-poetry/features/mkdocs/#enabling-the-documentation-on-github).
-To enable the code coverage reports, see [here](https://fpgmaas.github.io/cookiecutter-poetry/features/codecov/).
+The `sdc_aws_utils` library is organized as follows:
 
-## Releasing a new version
+```
+sdc_aws_utils/
+├── aws.py          # Functions for working with AWS services (S3, Timestream)
+├── config.py       # Configuration handling
+├── __init__.py     # Initialization
+├── logging.py      # Logging setup and utilities
+└── slack.py        # Functions for working with Slack notifications
+```
 
+## Contributing
 
+We welcome contributions to the `sdc_aws_utils` library. Please read the [contributing guidelines](CONTRIBUTING.rst) for more information on how to get involved.
 
----
+## License
 
-Repository initiated with [fpgmaas/cookiecutter-poetry](https://github.com/fpgmaas/cookiecutter-poetry).
+This project is licensed under the [MIT License](LICENSE). For more information, please see the [license file](LICENSE).

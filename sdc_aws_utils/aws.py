@@ -169,7 +169,7 @@ def upload_file_to_s3(s3_client: str, filename: str, destination_bucket: str, fi
 
 
 def log_to_timestream(
-    timesteam_client: type,
+    timestream_client: type,
     action_type: str,
     file_key: str,
     new_file_key: str = None,
@@ -200,7 +200,7 @@ def log_to_timestream(
             raise ValueError("A Source or Destination Buckets is required")
 
         # Write to Timestream
-        timesteam_client.write_records(
+        timestream_client.write_records(
             DatabaseName="sdc_aws_logs",
             TableName="sdc_aws_s3_bucket_log_table",
             Records=[
