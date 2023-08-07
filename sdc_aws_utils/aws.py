@@ -168,6 +168,48 @@ def upload_file_to_s3(s3_client: str, filename: str, destination_bucket: str, fi
         raise e
 
 
+def copy_file_in_s3(
+    s3_client: type,
+    source_bucket: str,
+    destination_bucket: str,
+    file_key: str,
+    new_file_key: str,
+    environment: str = "DEVELOPMENT",
+) -> None:
+    """
+    Copy a file from one S3 bucket to another.
+    :param s3_client: The AWS session
+    :type s3_client: str
+    :param source_bucket: The name of the source bucket
+    :type source_bucket: str
+    :param destination_bucket: The name of the destination bucket
+    :type destination_bucket: str
+    :param file_key: The name of the file
+    :type file_key: str
+    :param new_file_key: The new name of the file
+    :type new_file_key: str
+    :param environment: The environment
+    :type environment: str
+    :return: None
+    """
+
+    try:
+        # Check environment for destination bucket
+        destination_bucket = f"dev-{destination_bucket}" if environment == "DEVELOPMENT" else destination_bucket
+        # Create copy source object
+        copy_source = {"Bucket": source_bucket, "Key": file_key}
+
+        # Copy file from source bucket to destination bucket
+        s3_client.copy_object(
+            CopySource=copy_source,
+            Bucket=destination_bucket,
+            Key=new_file_key,
+        )
+    except botocore.exceptions.ClientError as e:
+        log.error({"status": "ERROR", "message": e})
+        raise e
+
+
 def log_to_timestream(
     timestream_client: type,
     database_name: str,
@@ -177,11 +219,16 @@ def log_to_timestream(
     new_file_key: str = None,
     source_bucket: str = None,
     destination_bucket: str = None,
+    environment: str = "DEVELOPMENT",
 ) -> None:
     """
     Log information to Timestream.
-    :param session: The AWS session
-    :type session: str
+    :param timestream_client: The Timestream Clien
+    :type timestream_client: str
+    :param database_name: The name of the database
+    :type database_name: str
+    :param table_name: The name of the table
+    :type table_name: str
     :param action_type: The type of action performed
     :type action_type: str
     :param file_key: The name of the file
@@ -192,6 +239,8 @@ def log_to_timestream(
     :type source_bucket: str
     :param destination_bucket: The name of the destination bucket
     :type destination_bucket: str
+    :param environment: The environment
+    :type environment: str
     :return: None
     :rtype: None
     """
@@ -200,6 +249,10 @@ def log_to_timestream(
     try:
         if not source_bucket and not destination_bucket:
             raise ValueError("A Source or Destination Buckets is required")
+
+        # Check environment
+        database_name = f"dev-{database_name}" if environment == "DEVELOPMENT" else database_name
+        table_name = f"dev-{table_name}" if environment == "DEVELOPMENT" else table_name
 
         # Write to Timestream
         timestream_client.write_records(
