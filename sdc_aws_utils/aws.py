@@ -174,7 +174,6 @@ def copy_file_in_s3(
     destination_bucket: str,
     file_key: str,
     new_file_key: str,
-    environment: str = "DEVELOPMENT",
 ) -> None:
     """
     Copy a file from one S3 bucket to another.
@@ -188,14 +187,10 @@ def copy_file_in_s3(
     :type file_key: str
     :param new_file_key: The new name of the file
     :type new_file_key: str
-    :param environment: The environment
-    :type environment: str
     :return: None
     """
 
     try:
-        # Check environment for destination bucket
-        destination_bucket = f"dev-{destination_bucket}" if environment == "DEVELOPMENT" else destination_bucket
         # Create copy source object
         copy_source = {"Bucket": source_bucket, "Key": file_key}
 
