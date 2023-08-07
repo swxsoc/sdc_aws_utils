@@ -1,9 +1,15 @@
+import os
 import yaml
 
 from sdc_aws_utils.logging import log
 
 
-def read_config_file(config_file_path="./config.yaml"):
+def read_config_file():
+    try:
+        config_file_path = os.getenv("SDC_AWS_CONFIG_FILE_PATH", "./config.yaml")
+    except Exception as e:
+        log.error({"status": "ERROR", "message": e})
+        raise e
     try:
         with open(config_file_path) as f:
             config = yaml.safe_load(f)
