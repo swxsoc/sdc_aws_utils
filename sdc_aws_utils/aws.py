@@ -170,6 +170,8 @@ def upload_file_to_s3(s3_client: str, filename: str, destination_bucket: str, fi
 
 def log_to_timestream(
     timestream_client: type,
+    database_name: str,
+    table_name: str,
     action_type: str,
     file_key: str,
     new_file_key: str = None,
@@ -201,8 +203,8 @@ def log_to_timestream(
 
         # Write to Timestream
         timestream_client.write_records(
-            DatabaseName="sdc_aws_logs",
-            TableName="sdc_aws_s3_bucket_log_table",
+            DatabaseName=database_name,
+            TableName=table_name,
             Records=[
                 {
                     "Time": CURRENT_TIME,
