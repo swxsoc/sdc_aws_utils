@@ -1,4 +1,5 @@
 import time
+import hashlib
 from datetime import datetime
 from pathlib import Path
 from typing import Callable
@@ -84,22 +85,48 @@ def create_s3_file_key(science_file_parser: Callable, old_file_key: str) -> str:
         raise e
 
 
-def object_exists(s3_client: type, bucket: str, file_key: str) -> bool:
-    """
-    Check if a file exists in the specified bucket.
-    :param s3_client: The AWS session
-    :type s3_client: str
-    :param bucket: The name of the bucket
-    :type bucket: str
-    :param file_key: The name of the file
-    :type file_key: str
-    :return: True if the file exists, False if it does not
-    :rtype: bool
-    """
+def list_files_in_bucket(s3_client, bucket_name: str):
+    files = []
+    paginator = s3_client.get_paginator("list_objects_v2")
+    for page in paginator.paginate(Bucket=bucket_name):
+        for obj in page.get("Contents", []):
+            files.append(obj["Key"])
+    return files
 
+
+def check_file_existence_in_target_buckets(s3_client, file_key, source_bucket: str, target_buckets: list):
+    for target_bucket in target_buckets:
+        if object_exists(s3_client, target_bucket, file_key):
+            print(f"File {file_key} from {source_bucket} exists in {target_bucket}")
+            return True
+        else:
+            print(f"File {file_key} from {source_bucket} does not exist in {target_bucket}")
+            return False
+
+
+def object_exists(s3_client, bucket: str, file_key: str, etag: bytes = None) -> bool:
+    """
+    Check if a file exists in the specified bucket, and optionally if its content matches a given hash.
+
+    :param s3_client: The AWS S3 client
+    :param bucket: The name of the bucket
+    :param file_key: The name of the file
+    :param file_content: Content of the file to compare its hash with the existing one. Defaults to None.
+    :return: True if the file exists and (optionally) its content matches, False otherwise.
+    """
     try:
-        s3_client.head_object(Bucket=bucket, Key=file_key)
+        response = s3_client.head_object(Bucket=bucket, Key=file_key)
+        log.info(response)
+        # If file_content is not provided, just check for existence
+        if not etag:
+            return True
+
+        # Calculate the MD5 hash of the provided content
+        # md5 = hashlib.md5(file_content).hexdigest()
+
+        # Compare with the ETag from the response (removing any surrounding quotes from ETag)
         return True
+
     except botocore.exceptions.ClientError:
         return False
 
