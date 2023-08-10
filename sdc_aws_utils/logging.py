@@ -1,3 +1,4 @@
+import os
 import logging
 
 # Configure logging
@@ -7,7 +8,10 @@ log = logging.getLogger()
 log_file_format = "%(asctime)s, %(origin)s, %(levelname)s, %(message)s"
 
 # Set log level
+environment = os.getenv("LAMBDA_ENVIRONMENT", "DEVELOPMENT")
 log.setLevel(logging.DEBUG)
+if environment == "PRODUCTION":
+    log.setLevel(logging.INFO)
 log_file = "/tmp/sdc_aws_processing_lambda.log"
 fh = logging.FileHandler(log_file)
 fh.setLevel(logging.INFO)
