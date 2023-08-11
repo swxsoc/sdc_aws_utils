@@ -223,8 +223,6 @@ def copy_file_in_s3(
 
 def log_to_timestream(
     timestream_client: type,
-    database_name: str,
-    table_name: str,
     action_type: str,
     file_key: str,
     new_file_key: str = None,
@@ -262,6 +260,8 @@ def log_to_timestream(
             raise ValueError("A Source or Destination Buckets is required")
 
         # Check environment
+        database_name = "sdc_aws_logs"
+        table_name = "sdc_aws_s3_bucket_log_table"
         database_name = f"dev-{database_name}" if environment == "DEVELOPMENT" else database_name
         table_name = f"dev-{table_name}" if environment == "DEVELOPMENT" else table_name
 

@@ -16,7 +16,7 @@ slack_sdk = "3.19.5"
 numpy = "^1.21.2"
 boto3 = "1.28.4"
 astropy = "5.1.1"
-hermes_core = { git = "https://github.com/HERMES-SOC/hermes_core.git", branch = "main" }
+
 
 [tool.poetry.group.dev.dependencies]
 numpy = "^1.21.2"
