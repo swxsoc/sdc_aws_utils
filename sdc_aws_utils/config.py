@@ -34,6 +34,7 @@ INSTR_TO_PKG = dict(zip(INSTR_NAMES, INSTR_PKG))
 # Import logging and util from mission package
 mission_pkg = __import__(MISSION_PKG)
 parser = mission_pkg.util.parse_science_filename
+writer = mission_pkg.util.create_science_filename
 
 
 # Get Incoming Bucket Name
