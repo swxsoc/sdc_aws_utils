@@ -1,5 +1,4 @@
 import time
-import hashlib
 from datetime import datetime
 from pathlib import Path
 from typing import Callable
@@ -85,7 +84,7 @@ def create_s3_file_key(science_file_parser: Callable, old_file_key: str) -> str:
         raise e
 
 
-def list_files_in_bucket(s3_client, bucket_name: str):
+def list_files_in_bucket(s3_client, bucket_name: str) -> list:
     files = []
     paginator = s3_client.get_paginator("list_objects_v2")
     for page in paginator.paginate(Bucket=bucket_name):
@@ -94,7 +93,7 @@ def list_files_in_bucket(s3_client, bucket_name: str):
     return files
 
 
-def check_file_existence_in_target_buckets(s3_client, file_key, source_bucket: str, target_buckets: list):
+def check_file_existence_in_target_buckets(s3_client, file_key: str, source_bucket: str, target_buckets: list) -> bool:
     for target_bucket in target_buckets:
         if object_exists(s3_client, target_bucket, file_key):
             print(f"File {file_key} from {source_bucket} exists in {target_bucket}")
@@ -104,7 +103,7 @@ def check_file_existence_in_target_buckets(s3_client, file_key, source_bucket: s
             return False
 
 
-def object_exists(s3_client, bucket: str, file_key: str, etag: bytes = None) -> bool:
+def object_exists(s3_client, bucket: str, file_key: str) -> bool:
     """
     Check if a file exists in the specified bucket, and optionally if its content matches a given hash.
 
@@ -115,18 +114,8 @@ def object_exists(s3_client, bucket: str, file_key: str, etag: bytes = None) -> 
     :return: True if the file exists and (optionally) its content matches, False otherwise.
     """
     try:
-        response = s3_client.head_object(Bucket=bucket, Key=file_key)
-        log.info(response)
-        # If file_content is not provided, just check for existence
-        if not etag:
-            return True
-
-        # Calculate the MD5 hash of the provided content
-        # md5 = hashlib.md5(file_content).hexdigest()
-
-        # Compare with the ETag from the response (removing any surrounding quotes from ETag)
+        s3_client.head_object(Bucket=bucket, Key=file_key)
         return True
-
     except botocore.exceptions.ClientError:
         return False
 

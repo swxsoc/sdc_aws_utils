@@ -12,8 +12,14 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4.0"
+slack_sdk = "3.19.5"
+numpy = "^1.21.2"
+boto3 = "1.28.4"
+astropy = "5.1.1"
+hermes_core = { git = "https://github.com/HERMES-SOC/hermes_core.git", branch = "main" }
 
 [tool.poetry.group.dev.dependencies]
+numpy = "^1.21.2"
 pytest = "^7.2.0"
 pytest-cov = "^4.0.0"
 mypy = "^0.981"
@@ -26,6 +32,7 @@ psycopg = "3.1.8"
 flake8 = "6.0.0"
 black = "23.1.0"
 slack_sdk = "3.19.5"
+boto3 = "1.28.4"
 hermes_core = { git = "https://github.com/HERMES-SOC/hermes_core.git", branch = "main" }
 
 

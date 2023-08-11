@@ -1,14 +1,33 @@
+import os
 import logging
+import pytest
+from sdc_aws_utils.logging import log, configure_logger
 
-from sdc_aws_utils.logging import log
+
+def test_logger_level_development():
+    os.environ["LAMBDA_ENVIRONMENT"] = "DEVELOPMENT"
+    configure_logger()
+    assert log.level == logging.DEBUG
 
 
-def test_log():
-    log.info("Test log message")
-    log.debug("Test log message")
-    log.error("Test log message")
-    log.warning("Test log message")
-    log.critical("Test log message")
+def test_logger_level_production():
+    os.environ["LAMBDA_ENVIRONMENT"] = "PRODUCTION"
+    configure_logger()
+    assert log.level == logging.INFO
 
-    assert log is not None
-    assert isinstance(log, logging.Logger)
+
+def test_botocore_logger_level():
+    botocore_logger = logging.getLogger("botocore")
+    assert botocore_logger.level == logging.CRITICAL
+
+
+def test_boto3_logger_level():
+    boto3_logger = logging.getLogger("boto3")
+    assert boto3_logger.level == logging.CRITICAL
+
+
+@pytest.fixture(autouse=True)
+def cleanup():
+    yield
+    if "LAMBDA_ENVIRONMENT" in os.environ:
+        del os.environ["LAMBDA_ENVIRONMENT"]

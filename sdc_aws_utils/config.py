@@ -5,11 +5,8 @@ from sdc_aws_utils.logging import log
 
 
 def read_config_file():
-    try:
-        config_file_path = os.getenv("SDC_AWS_CONFIG_FILE_PATH", "./config.yaml")
-    except Exception as e:
-        log.error({"status": "ERROR", "message": e})
-        raise e
+    # Get the config file path from environment variable
+    config_file_path = os.getenv("SDC_AWS_CONFIG_FILE_PATH", "./config.yaml")
     try:
         with open(config_file_path) as f:
             config = yaml.safe_load(f)
