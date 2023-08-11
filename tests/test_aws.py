@@ -250,8 +250,6 @@ def test_log_to_timestream():
     # No need to add assertions since we're only testing if the function can be called without exceptions
     log_to_timestream(
         timestream_client,
-        db_name,
-        table_name,
         "COPY",
         "test_file.txt",
         "L1/2022/09/test_file.txt",
@@ -264,8 +262,6 @@ def test_log_to_timestream():
     try:
         log_to_timestream(
             timestream_client,
-            db_name,
-            table_name,
             "COPY",
             "test_file.txt",
             "L1/2022/09/test_file.txt",
