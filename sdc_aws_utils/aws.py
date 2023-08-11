@@ -100,7 +100,8 @@ def check_file_existence_in_target_buckets(s3_client, file_key: str, source_buck
             return True
         else:
             print(f"File {file_key} from {source_bucket} does not exist in {target_bucket}")
-            return False
+
+    return False
 
 
 def object_exists(s3_client, bucket: str, file_key: str) -> bool:
