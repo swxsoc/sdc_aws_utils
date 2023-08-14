@@ -60,6 +60,9 @@ def generate_file_pipeline_message(file_path: str, alert_type: Optional[str] = N
     Function to generate file pipeline message
     """
 
+    if "/" in file_path:
+        file_path = file_path.split("/")[-1]
+
     if alert_type != "delete":
         # Get the file name
         alert = {
@@ -203,9 +206,12 @@ def get_message_ts(slack_client: WebClient, slack_channel: str, science_filename
         for message in messages:
             if "text" in message:
                 slack_science_filename = parse_slack_message(message["text"])
+
                 if not slack_science_filename:
                     continue
                 try:
+                    if "/" in slack_science_filename:
+                        slack_science_filename = slack_science_filename.split("/")[-1]
                     slack_science_file = parser(slack_science_filename)
                 except ValueError:
                     continue
@@ -213,7 +219,7 @@ def get_message_ts(slack_client: WebClient, slack_channel: str, science_filename
 
                 if have_same_keys_and_values(
                     [slack_science_file, science_file],
-                    ["time", "version", "mode", "test"],
+                    ["time", "mode", "test"],
                 ):
                     return message["ts"]
 
@@ -252,6 +258,11 @@ def send_pipeline_notification(slack_client: WebClient, slack_channel: str, path
                     slack_channel=slack_channel,
                     slack_message=slack_message,
                 )
+                ts = get_message_ts(
+                    slack_client=slack_client,
+                    slack_channel=slack_channel,
+                    science_filename=path,  # Pass the message_ts instead of slack_message
+                )
 
             slack_message = generate_file_pipeline_message(path, alert_type=alert_type)
 
@@ -265,4 +276,4 @@ def send_pipeline_notification(slack_client: WebClient, slack_channel: str, path
             )
 
     except Exception as e:
-        log.error(e)
+        log.error({"status": "ERROR", "message": e})

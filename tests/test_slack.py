@@ -118,18 +118,15 @@ def test_is_file_manifest_false():
 
 # Test generate_file_pipeline_message function
 def test_generate_file_pipeline_message_alert_type():
-    assert generate_file_pipeline_message("path/to/file.txt") == "Science File - ( _path/to/file.txt_ )"
+    assert generate_file_pipeline_message("path/to/file.txt") == "Science File - ( _file.txt_ )"
 
 
 def test_generate_file_pipeline_message_alert_type():
-    assert generate_file_pipeline_message("path/to/file.txt", "sorted") == "File Sorted - ( _path/to/file.txt_ )"
+    assert generate_file_pipeline_message("path/to/file.txt", "sorted") == "File Sorted - ( _file.txt_ )"
 
 
 def test_generate_file_pipeline_message_alert_type():
-    assert (
-        generate_file_pipeline_message("path/to/file.txt", "non-existing key")
-        == "Science File - ( _path/to/file.txt_ )"
-    )
+    assert generate_file_pipeline_message("path/to/file.txt", "non-existing key") == "Science File - ( _file.txt_ )"
 
 
 def test_generate_file_pipeline_message_alert_type_delete():
@@ -146,7 +143,7 @@ def test_generate_file_pipeline_message_manifest(mocked_manifest):
 
 
 def test_generate_file_pipeline_message_sorted():
-    assert generate_file_pipeline_message("path/to/file.txt", "sorted") == "File Sorted - ( _path/to/file.txt_ )"
+    assert generate_file_pipeline_message("path/to/file.txt", "sorted") == "File Sorted - ( _file.txt_ )"
 
 
 # Test have_same_keys_and_values function
