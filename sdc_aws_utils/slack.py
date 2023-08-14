@@ -9,9 +9,6 @@ from slack_sdk.errors import SlackApiError
 
 from sdc_aws_utils.logging import log
 from sdc_aws_utils.config import parser
-import re
-from unittest.mock import Mock, patch
-import pytest
 
 
 def get_slack_client(slack_token: str) -> WebClient:
@@ -69,6 +66,8 @@ def generate_file_pipeline_message(file_path: str, alert_type: Optional[str] = N
             "upload": f"File Uploaded to S3 - ( _{file_path}_ )",
             "sorted": f"File Sorted - ( _{file_path}_ )",
             "sorted_error": f"File Not Sorted - ( _{file_path}_ )",
+            "processed": f"File Processed - ( _{file_path}_ )",
+            "processed_error": f"File Not Processed - ( _{file_path}_ )",
             "error": f"File Upload Failed - ( _{file_path}_ )",
         }
         slack_message = f"Science File - ( _{file_path}_ )"
@@ -102,6 +101,8 @@ def send_slack_notification(
         "upload": "#3498db",
         "sorted": "#f39c12",
         "sorted_error": "#ff0000",
+        "processed": "#2ecc71",
+        "processed_error": "#f1c40f",
         "info": "#3498db",
         "warning": "#f1c40f",
         "orange": "#f39c12",
@@ -223,7 +224,7 @@ def get_message_ts(slack_client: WebClient, slack_channel: str, science_filename
         return None
 
 
-def parse_slack_message(message: str) -> str:
+def parse_slack_message(message: str) -> str or None:
     # Search for the pattern with optional underscores surrounding the file path
     match = re.search(r"Science File - \( _?(.+?)_? \)", message)
     if match:
