@@ -305,7 +305,7 @@ def log_to_timestream(
         raise e
 
 # Invoke Reprocessing Lambda
-def invoke_reprocessing_lambda(lambda_client: type, bucket: str, key: str, environment: str) -> None:
+def invoke_reprocessing_lambda(bucket: str, key: str, environment: str) -> None:
     """
     Invoke the Reprocessing Lambda.
     :param lambda_client: The AWS Lambda client
