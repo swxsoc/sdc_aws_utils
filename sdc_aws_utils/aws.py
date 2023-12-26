@@ -345,7 +345,7 @@ def invoke_reprocessing_lambda(bucket: str, key: str, environment: str) -> None:
     lambda_client = boto3.client('lambda')
 
     # Specify the Lambda function name
-    function_name = f'{"dev-" if environment == "DEVELOPMENT" else ""}sdc_aws_processing_lambda_function'
+    function_name = f'{"dev-" if environment == "DEVELOPMENT" else ""}aws_sdc_processing_lambda_function'
 
     log.info(f"Invoking Lambda function {function_name} with payload {data}")
     
