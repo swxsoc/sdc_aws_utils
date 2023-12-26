@@ -1,4 +1,5 @@
 import time
+import json
 from datetime import datetime
 from pathlib import Path
 from typing import Callable
@@ -302,3 +303,56 @@ def log_to_timestream(
         log.error({"status": "ERROR", "message": e})
 
         raise e
+
+# Invoke Reprocessing Lambda
+def invoke_reprocessing_lambda(lambda_client: type, bucket: str, key: str, environment: str) -> None:
+    """
+    Invoke the Reprocessing Lambda.
+    :param lambda_client: The AWS Lambda client
+    :type lambda_client: type
+    :param lambda_name: The name of the lambda
+    :type lambda_name: str
+    :param payload: The payload to send to the lambda
+    :type payload: str
+    :return: None
+    :rtype: None
+    """
+    # Create the JSON structure
+    data = {
+        "Records": [
+            {
+                "Sns": {
+                    "Message": json.dumps({
+                        "Records": [
+                            {
+                                "s3": {
+                                    "bucket": {
+                                        "name": bucket
+                                    },
+                                    "object": {
+                                        "key": key
+                                    }
+                                }
+                            }
+                        ]
+                    })
+                }
+            }
+        ]
+    }
+
+    # Initialize a boto3 client for Lambda
+    lambda_client = boto3.client('lambda')
+
+    # Specify the Lambda function name
+    function_name = f'{"dev-" if environment == "DEVELOPMENT" else ""}sdc_aws_processing_lambda'
+
+    log.info(f"Invoking Lambda function {function_name} with payload {data}")
+    
+    # Invoke the Lambda function
+    response = lambda_client.invoke(
+        FunctionName=function_name,
+        InvocationType='Event',
+        Payload=json.dumps(data)
+    )
+    return response
