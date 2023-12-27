@@ -71,6 +71,8 @@ def generate_file_pipeline_message(file_path: str, alert_type: Optional[str] = N
             "sorted_error": f"File Not Sorted - ( _{file_path}_ )",
             "processed": f"File Processed - ( _{file_path}_ )",
             "processed_error": f"File Not Processed - ( _{file_path}_ )",
+            "download": f"File Downloaded - ( _{file_path}_ )",
+            "download_error": f"File Not Downloaded - ( _{file_path}_ )",
             "error": f"File Upload Failed - ( _{file_path}_ )",
         }
         slack_message = f"Science File - ( _{file_path}_ )"
@@ -106,6 +108,8 @@ def send_slack_notification(
         "sorted_error": "#ff0000",
         "processed": "#2ecc71",
         "processed_error": "#f1c40f",
+        "download": "#ffffff",
+        "download_error": "#ff0000",
         "info": "#3498db",
         "warning": "#f1c40f",
         "orange": "#f39c12",
