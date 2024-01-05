@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import boto3
@@ -18,6 +19,8 @@ from sdc_aws_utils.aws import (
     object_exists,
     parse_file_key,
     upload_file_to_s3,
+    push_science_file,
+    get_science_file,
 )
 
 # from lambda_function.file_processor.config import parser
@@ -276,3 +279,175 @@ def test_log_to_timestream():
         assert False
     except TypeError as e:
         assert e is not None
+
+
+def test_file_key_generation():
+    # Setup
+    filename = "hermes_EEA_l0_2023042-000000_v0.bin"
+
+    # Exercise
+    file_key = push_science_file(parse_science_filename, "hermes-eea", filename, True)
+
+    # Verify
+    assert file_key == "l0/2023/02/hermes_EEA_l0_2023042-000000_v0.bin"
+
+
+@pytest.mark.parametrize("dry_run", [False, True])
+@mock_s3
+def test_s3_upload(dry_run):
+    # Setup
+    bucket = "hermes-eea"
+    filename = "hermes_EEA_l0_2023042-000000_v0.bin"
+    expected_key = "l0/2023/02/hermes_EEA_l0_2023042-000000_v0.bin"
+
+    # Setup S3
+    s3_client = boto3.client("s3")
+    s3_client.create_bucket(Bucket=bucket)
+
+    # Create file in tmp directory to fix /tmp/hermes_EEA_l0_2023042-000000_v0.bin'
+    with open(f"/tmp/{filename}", "w") as f:
+        f.write("test")
+
+    # Exercise
+    file_key = push_science_file(parse_science_filename, bucket, filename, dry_run)
+
+    # Verify
+    assert file_key == expected_key
+    if not dry_run:
+        assert s3_client.head_object(Bucket=bucket, Key=expected_key)
+    else:
+        with pytest.raises(botocore.exceptions.ClientError):
+            s3_client.head_object(Bucket=bucket, Key=expected_key)
+
+    # Cleanup
+    s3_client.delete_object(Bucket=bucket, Key=expected_key)
+    s3_client.delete_bucket(Bucket=bucket)
+    os.remove(f"/tmp/{filename}")
+
+
+@pytest.mark.parametrize("dry_run", [False, True])
+@mock_s3
+def test_s3_upload(dry_run):
+    # Setup
+    bucket = "hermes-eea"
+    filename = "hermes_EEA_l0_2023042-000000_v0.bin"
+    expected_key = "l0/2023/02/hermes_EEA_l0_2023042-000000_v0.bin"
+
+    # Setup S3
+    s3_client = boto3.client("s3")
+    s3_client.create_bucket(Bucket=bucket)
+
+    # Create file in tmp directory to fix /tmp/hermes_EEA_l0_2023042-000000_v0.bin'
+    with open(f"/tmp/{filename}", "w") as f:
+        f.write("test")
+
+    # Exercise
+    file_key = push_science_file(parse_science_filename, bucket, filename, dry_run)
+
+    # Verify
+    assert file_key == expected_key
+    if not dry_run:
+        assert s3_client.head_object(Bucket=bucket, Key=expected_key)
+        try:
+            file_key = push_science_file(parse_science_filename, bucket, filename, dry_run)
+        except Exception as e:
+            assert e is not None
+    else:
+        with pytest.raises(botocore.exceptions.ClientError):
+            s3_client.head_object(Bucket=bucket, Key=expected_key)
+
+
+def test_with_sdc_aws_file_path_set():
+    # Setup
+    parser_mock = lambda filename: filename
+    bucket = "hermes-eea"
+    filename = "hermes_EEA_l0_2023042-000000_v0.bin"
+    expected_key = "l0/2023/02/hermes_EEA_l0_2023042-000000_v0.bin"
+
+    os.environ["SDC_AWS_FILE_PATH"] = f"../test_data/{filename}"
+
+    # Exercise
+    file_key = push_science_file(parse_science_filename, bucket, filename, False)
+
+    # Cleanup
+    del os.environ["SDC_AWS_FILE_PATH"]
+
+    # Verify
+    assert file_key == expected_key
+
+
+@mock_s3
+def test_file_download_from_s3():
+    # Setup
+    bucket = "hermes-eea"
+    file_key = "l0/2023/02/hermes_EEA_l0_2023042-000000_v0.bin"
+    parsed_file_key = "hermes_EEA_l0_2023042-000000_v0.bin"
+
+    # Setup S3
+    s3_client = boto3.client("s3")
+    s3_client.create_bucket(Bucket=bucket)
+    s3_client.put_object(Bucket=bucket, Key=file_key, Body="test content")
+
+    # Exercise
+    file_path = get_science_file(bucket, file_key, parsed_file_key)
+
+    # Verify
+    assert file_path is not None
+    assert file_path.name == parsed_file_key
+
+    # Cleanup
+    os.remove(file_path)
+
+
+def test_file_download_with_env_var_set():
+    # Setup
+    os.environ["SDC_AWS_FILE_PATH"] = "/path/to/test-file.bin"
+
+    # Exercise
+    file_path = get_science_file("bucket", "file_key", "parsed_file_key")
+
+    # Verify
+    assert file_path == Path("/path/to/test-file.bin")
+
+    # Cleanup
+    del os.environ["SDC_AWS_FILE_PATH"]
+
+
+@pytest.mark.parametrize("dry_run", [True, False])
+@mock_s3
+def test_dry_run_behavior(dry_run):
+    # Setup
+    bucket = "hermes-eea"
+    file_key = "l0/2023/02/hermes_EEA_l0_2023042-000000_v0.bin"
+
+    # Setup S3
+    s3_client = boto3.client("s3")
+    s3_client.create_bucket(Bucket=bucket)
+    s3_client.put_object(Bucket=bucket, Key=file_key, Body="test content")
+
+    # Exercise
+    file_path = get_science_file(bucket, file_key, "hermes_EEA_l0_2023042-000000_v0.bin", dry_run)
+
+    # Verify
+    if dry_run:
+        assert file_path is None
+    else:
+        assert file_path is not None
+        assert file_path.name == "hermes_EEA_l0_2023042-000000_v0.bin"
+        assert file_path.parent == Path("/tmp")
+
+
+@mock_s3
+def test_file_not_found_in_s3_bucket():
+    # Setup
+    bucket = "test-bucket"
+    file_key = "nonexistent-file.bin"
+    parsed_file_key = "parsed-nonexistent-file.bin"
+
+    # Setup S3
+    s3_client = boto3.client("s3")
+    s3_client.create_bucket(Bucket=bucket)
+
+    # Exercise and Verify
+    with pytest.raises(FileNotFoundError):
+        get_science_file(bucket, file_key, parsed_file_key)
