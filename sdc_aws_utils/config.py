@@ -2,39 +2,34 @@ import os
 import yaml
 
 from sdc_aws_utils.logging import log
-
-
-def read_config_file():
-    # Get the config file path from environment variable
-    config_file_path = os.getenv("SDC_AWS_CONFIG_FILE_PATH", "./config.yaml")
-    try:
-        with open(config_file_path) as f:
-            config = yaml.safe_load(f)
-            log.debug("config.yaml loaded successfully")
-            return config
-    except FileNotFoundError:
-        log.error("config.yaml not found")
-        raise FileNotFoundError("config.yaml not found")
-
+import swxsoc
+from swxsoc.util import util
 
 # Read config file
-config = read_config_file()
+mission_config = swxsoc.config["mission"]
 
 # Set up global variables
-MISSION_NAME = config["MISSION_NAME"]
-INSTR_NAMES = config["INSTR_NAMES"]
-MISSION_PKG = config["MISSION_PKG"]
-TSD_REGION = config["TSD_REGION"]
-INCOMING_BUCKET = config["INCOMING_BUCKET"]
+MISSION_NAME = mission_config["mission_name"]
+INSTR_NAMES = mission_config["inst_names"]
+MISSION_PKG = "swxsoc"
+
+if os.getenv("AWS_REGION") is not None:
+    TSD_REGION = os.getenv("AWS_REGION")
+else:
+    TSD_REGION = "us-east-1"
+
+if os.getenv("SWXSOC_INCOMING_BUCKET") is not None:
+    INCOMING_BUCKET = os.getenv("SWXSOC_INCOMING_BUCKET")
+else:
+    INCOMING_BUCKET = f"{MISSION_NAME}-incoming"
+
 INSTR_PKG = [f"{MISSION_NAME}_{this_instr}" for this_instr in INSTR_NAMES]
 INSTR_TO_BUCKET_NAME = {this_instr: f"{MISSION_NAME}-{this_instr}" for this_instr in INSTR_NAMES}
 INSTR_TO_PKG = dict(zip(INSTR_NAMES, INSTR_PKG))
 
-
-# Import logging and util from mission package
-mission_pkg = __import__(MISSION_PKG)
-parser = mission_pkg.util.parse_science_filename
-writer = mission_pkg.util.create_science_filename
+# Import parser and writer from util
+parser = util.parse_science_filename
+writer = util.create_science_filename
 
 
 # Get Incoming Bucket Name

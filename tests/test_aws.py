@@ -4,7 +4,7 @@ from pathlib import Path
 import boto3
 import botocore
 import pytest
-from hermes_core.util import parse_science_filename
+from swxsoc.util import parse_science_filename
 from moto import mock_s3, mock_timestreamwrite
 
 from sdc_aws_utils.aws import (
@@ -99,18 +99,18 @@ def test_create_s3_file_key():
     """
 
     # Test L0 file
-    test_valid_file_key = "hermes_EEA_l0_2022335-200137_v01.bin"
+    test_valid_file_key = "swxsoc_EEA_l0_2022335-200137_v01.bin"
 
     valid_key = create_s3_file_key(parser, old_file_key=test_valid_file_key)
 
-    assert valid_key == "l0/2022/12/hermes_EEA_l0_2022335-200137_v01.bin"
+    assert valid_key == "l0/2022/12/swxsoc_EEA_l0_2022335-200137_v01.bin"
 
     # Test CDF file
-    test_valid_file_key = "hermes_eea_ql_20230205T000006_v1.0.01.cdf"
+    test_valid_file_key = "swxsoc_eea_ql_20230205T000006_v1.0.01.cdf"
 
     valid_key = create_s3_file_key(parser, old_file_key=test_valid_file_key)
 
-    assert valid_key == "ql/2023/02/hermes_eea_ql_20230205T000006_v1.0.01.cdf"
+    assert valid_key == "ql/2023/02/swxsoc_eea_ql_20230205T000006_v1.0.01.cdf"
 
     def test_parser(filename):
         return {"level": "l0"}
@@ -122,7 +122,7 @@ def test_create_s3_file_key():
         assert e is not None
 
     # Test unvalid file key
-    test_invalid_file_key = "hermes_EEA_l0_2022335-200137_v01"
+    test_invalid_file_key = "swxsoc_EEA_l0_2022335-200137_v01"
 
     try:
         create_s3_file_key(parser, old_file_key=test_invalid_file_key)
@@ -283,28 +283,28 @@ def test_log_to_timestream():
 
 def test_file_key_generation():
     # Setup
-    filename = "hermes_EEA_l0_2023042-000000_v0.bin"
+    filename = "swxsoc_EEA_l0_2023042-000000_v0.bin"
 
     # Exercise
-    file_key = push_science_file(parse_science_filename, "hermes-eea", filename, True)
+    file_key = push_science_file(parse_science_filename, "swxsoc-eea", filename, True)
 
     # Verify
-    assert file_key == "l0/2023/02/hermes_EEA_l0_2023042-000000_v0.bin"
+    assert file_key == "l0/2023/02/swxsoc_EEA_l0_2023042-000000_v0.bin"
 
 
 @pytest.mark.parametrize("dry_run", [False, True])
 @mock_s3
 def test_s3_upload(dry_run):
     # Setup
-    bucket = "hermes-eea"
-    filename = "hermes_EEA_l0_2023042-000000_v0.bin"
-    expected_key = "l0/2023/02/hermes_EEA_l0_2023042-000000_v0.bin"
+    bucket = "swxsoc-eea"
+    filename = "swxsoc_EEA_l0_2023042-000000_v0.bin"
+    expected_key = "l0/2023/02/swxsoc_EEA_l0_2023042-000000_v0.bin"
 
     # Setup S3
     s3_client = boto3.client("s3")
     s3_client.create_bucket(Bucket=bucket)
 
-    # Create file in tmp directory to fix /tmp/hermes_EEA_l0_2023042-000000_v0.bin'
+    # Create file in tmp directory to fix /tmp/swxsoc_EEA_l0_2023042-000000_v0.bin'
     with open(f"/tmp/{filename}", "w") as f:
         f.write("test")
 
@@ -329,15 +329,15 @@ def test_s3_upload(dry_run):
 @mock_s3
 def test_s3_upload(dry_run):
     # Setup
-    bucket = "hermes-eea"
-    filename = "hermes_EEA_l0_2023042-000000_v0.bin"
-    expected_key = "l0/2023/02/hermes_EEA_l0_2023042-000000_v0.bin"
+    bucket = "swxsoc-eea"
+    filename = "swxsoc_EEA_l0_2023042-000000_v0.bin"
+    expected_key = "l0/2023/02/swxsoc_EEA_l0_2023042-000000_v0.bin"
 
     # Setup S3
     s3_client = boto3.client("s3")
     s3_client.create_bucket(Bucket=bucket)
 
-    # Create file in tmp directory to fix /tmp/hermes_EEA_l0_2023042-000000_v0.bin'
+    # Create file in tmp directory to fix /tmp/swxsoc_EEA_l0_2023042-000000_v0.bin'
     with open(f"/tmp/{filename}", "w") as f:
         f.write("test")
 
@@ -360,9 +360,9 @@ def test_s3_upload(dry_run):
 def test_with_sdc_aws_file_path_set():
     # Setup
     parser_mock = lambda filename: filename
-    bucket = "hermes-eea"
-    filename = "hermes_EEA_l0_2023042-000000_v0.bin"
-    expected_key = "l0/2023/02/hermes_EEA_l0_2023042-000000_v0.bin"
+    bucket = "swxsoc-eea"
+    filename = "swxsoc_EEA_l0_2023042-000000_v0.bin"
+    expected_key = "l0/2023/02/swxsoc_EEA_l0_2023042-000000_v0.bin"
 
     os.environ["SDC_AWS_FILE_PATH"] = f"../test_data/{filename}"
 
@@ -379,9 +379,9 @@ def test_with_sdc_aws_file_path_set():
 @mock_s3
 def test_file_download_from_s3():
     # Setup
-    bucket = "hermes-eea"
-    file_key = "l0/2023/02/hermes_EEA_l0_2023042-000000_v0.bin"
-    parsed_file_key = "hermes_EEA_l0_2023042-000000_v0.bin"
+    bucket = "swxsoc-eea"
+    file_key = "l0/2023/02/swxsoc_EEA_l0_2023042-000000_v0.bin"
+    parsed_file_key = "swxsoc_EEA_l0_2023042-000000_v0.bin"
 
     # Setup S3
     s3_client = boto3.client("s3")
@@ -417,8 +417,8 @@ def test_file_download_with_env_var_set():
 @mock_s3
 def test_dry_run_behavior(dry_run):
     # Setup
-    bucket = "hermes-eea"
-    file_key = "l0/2023/02/hermes_EEA_l0_2023042-000000_v0.bin"
+    bucket = "swxsoc-eea"
+    file_key = "l0/2023/02/swxsoc_EEA_l0_2023042-000000_v0.bin"
 
     # Setup S3
     s3_client = boto3.client("s3")
@@ -426,14 +426,14 @@ def test_dry_run_behavior(dry_run):
     s3_client.put_object(Bucket=bucket, Key=file_key, Body="test content")
 
     # Exercise
-    file_path = get_science_file(bucket, file_key, "hermes_EEA_l0_2023042-000000_v0.bin", dry_run)
+    file_path = get_science_file(bucket, file_key, "swxsoc_EEA_l0_2023042-000000_v0.bin", dry_run)
 
     # Verify
     if dry_run:
         assert file_path is None
     else:
         assert file_path is not None
-        assert file_path.name == "hermes_EEA_l0_2023042-000000_v0.bin"
+        assert file_path.name == "swxsoc_EEA_l0_2023042-000000_v0.bin"
         assert file_path.parent == Path("/tmp")
 
 

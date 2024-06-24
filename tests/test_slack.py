@@ -212,11 +212,11 @@ def test_get_message_ts(mock_slack_client):
     mock_slack_client.conversations_history.return_value = {
         "messages": [
             {"text": "Some random text"},
-            {"text": "Science File - ( _hermes_eea_ql_20230205T000006_v1.0.01.cdf_ )", "ts": "12345"},
+            {"text": "Science File - ( _swxsoc_eea_ql_20230205T000006_v1.0.01.cdf_ )", "ts": "12345"},
         ]
     }
 
-    ts = get_message_ts(mock_slack_client, "#general", "hermes_eea_ql_20230205T000006_v1.0.01.cdf")
+    ts = get_message_ts(mock_slack_client, "#general", "swxsoc_eea_ql_20230205T000006_v1.0.01.cdf")
     assert ts == "12345"
 
 

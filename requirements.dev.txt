@@ -5,11 +5,10 @@ mypy>=0.981,<1.0
 pre-commit>=2.20.0,<3.0
 tox>=3.25.1,<4.0
 moto==4.1.6
-astropy==5.1.1
 pytest-astropy==0.10.0
 psycopg==3.1.8
 flake8==6.0.0
 black==23.1.0
 slack_sdk==3.19.5
 boto3==1.28.4
-hermes_core @ git+https://github.com/HERMES-SOC/hermes_core.git@main
+swxsoc @ git+https://github.com/swxsoc/swxsoc.git
