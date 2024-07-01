@@ -25,12 +25,10 @@ def get_slack_client(slack_token: str) -> WebClient:
 
     # If the slack token is still not set, return None
     if not slack_token:
-        log.error(
-            {
-                "status": "ERROR",
-                "message": "Slack Token is not set",
-            }
-        )
+        log.error({
+            "status": "ERROR",
+            "message": "Slack Token is not set",
+        })
         return None
 
     # Initialize the slack client
@@ -123,40 +121,32 @@ def send_slack_notification(
     # Check if slack_message is a tuple
     if isinstance(slack_message, tuple):
         text = slack_message[0]
-        attachments = [
-            {
-                "color": color["purple"],
-                "blocks": [
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": f"{slack_message[1]}",
-                        },
-                    }
-                ],
-                "fallback": f"{slack_message[1]}",
-            }
-        ]
+        attachments = [{
+            "color": color["purple"],
+            "blocks": [{
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"{slack_message[1]}",
+                },
+            }],
+            "fallback": f"{slack_message[1]}",
+        }]
         pretext = slack_message[0]
     else:
         text = slack_message
         pretext = slack_message
         if alert_type:
-            attachments = [
-                {
-                    "color": color[alert_type],
-                    "blocks": [
-                        {
-                            "type": "section",
-                            "text": {
-                                "type": "mrkdwn",
-                                "text": f"{slack_message}",
-                            },
-                        }
-                    ],
-                }
-            ]
+            attachments = [{
+                "color": color[alert_type],
+                "blocks": [{
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": f"{slack_message}",
+                    },
+                }],
+            }]
             text = f"`{ts}` -"
 
     for i in range(slack_max_retries):
@@ -181,12 +171,10 @@ def send_slack_notification(
                 )
                 time.sleep(slack_retry_delay)
             else:  # If it's the last attempt, log the error and exit the loop
-                log.error(
-                    {
-                        "status": "ERROR",
-                        "message": f"Error sending Slack Notification (attempt {i + 1}): {e}",
-                    }
-                )
+                log.error({
+                    "status": "ERROR",
+                    "message": f"Error sending Slack Notification (attempt {i + 1}): {e}",
+                })
                 raise e
 
 

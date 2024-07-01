@@ -262,9 +262,14 @@ def log_to_timestream(
         if not source_bucket and not destination_bucket:
             raise ValueError("A Source or Destination Buckets is required")
 
-        # Check environment
-        database_name = "sdc_aws_logs"
-        table_name = "sdc_aws_s3_bucket_log_table"
+        # Check environment variable for SWXSOC_MISSION
+        mission_name = os.getenv("SWXSOC_MISSION")
+        if not mission_name or mission_name == "hermes":
+            database_name = "sdc_aws_logs"
+            table_name = "sdc_aws_s3_bucket_log_table"
+        else:
+            database_name = f"{mission_name}_sdc_aws_logs"
+            table_name = f"{mission_name}_sdc_aws_s3_bucket_log_table"
         database_name = f"dev-{database_name}" if environment == "DEVELOPMENT" else database_name
         table_name = f"dev-{table_name}" if environment == "DEVELOPMENT" else table_name
 
@@ -321,13 +326,9 @@ def invoke_reprocessing_lambda(bucket: str, key: str, environment: str) -> None:
     """
     # Create the JSON structure
     data = {
-        "Records": [
-            {
-                "Sns": {
-                    "Message": json.dumps({"Records": [{"s3": {"bucket": {"name": bucket}, "object": {"key": key}}}]})
-                }
-            }
-        ]
+        "Records": [{
+            "Sns": {"Message": json.dumps({"Records": [{"s3": {"bucket": {"name": bucket}, "object": {"key": key}}}]})}
+        }]
     }
 
     # Initialize a boto3 client for Lambda
