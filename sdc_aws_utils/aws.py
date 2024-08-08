@@ -438,15 +438,6 @@ def push_science_file(
         # Initialize S3 Client
         s3_client = create_s3_client_session()
 
-        # Verify object does not exist in instrument bucket
-        if object_exists(
-            s3_client=s3_client,
-            bucket=destination_bucket,
-            file_key=new_file_key,
-        ):
-            log.warning(f"File {new_file_key} already exists in bucket {destination_bucket}")
-            return new_file_key
-
         # Upload file to destination bucket
         upload_file_to_s3(
             s3_client=s3_client,
@@ -454,6 +445,11 @@ def push_science_file(
             filename=calibrated_filename,
             file_key=new_file_key,
         )
+
+        # Cleans the file from the /tmp directory in case of execution environment reuse
+        if Path(calibrated_filename).exists():
+            Path(calibrated_filename).unlink()  # This deletes the file
+            print(f'File {Path(calibrated_filename)} successfully cleaned up from execution environment directory in case of reuse.')
 
     else:
         log.info(
