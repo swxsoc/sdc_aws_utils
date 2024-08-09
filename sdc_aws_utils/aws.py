@@ -451,18 +451,9 @@ def push_science_file(
         temp_dir = Path(tempfile.gettempdir())
         file_path = temp_dir / calibrated_filename
 
-        # Perform the cleanup
-        try:
-            file_path.unlink()  # Attempt to delete the file
-            print(f'File {file_path} successfully cleaned up.')
-        except FileNotFoundError:
-            # Handle the case where the file doesn't exist
-            print(f"File {file_path} does not exist, no need to clean up.")
-        except OSError as e:
-            if e.errno == 30:  # Read-only file system
-                print(f"Could not delete {calibrated_filename}: read-only file system.")
-            else:
-                raise  # Re-raise if it's a different issue
+        # Iterate over all files in the /tmp directory
+        for file_path in temp_dir.iterdir():
+            log.info(file_path)
 
     else:
         log.info(
