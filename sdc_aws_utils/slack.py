@@ -207,11 +207,11 @@ def get_message_ts(slack_client: WebClient, slack_channel: str, science_filename
                     slack_science_file = parser(slack_science_filename)
                 except ValueError:
                     continue
-                science_file = parser(science_filename)
 
+                science_file = parser(science_filename)
                 if have_same_keys_and_values(
                     [slack_science_file, science_file],
-                    ["time", "mode", "test"],
+                    ["instrument", "time"],
                 ):
                     return message["ts"]
 
