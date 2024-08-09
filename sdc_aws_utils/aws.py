@@ -3,6 +3,7 @@ import time
 import json
 from datetime import datetime
 from pathlib import Path
+import tempfile
 from typing import Callable, Optional
 
 import boto3
@@ -446,10 +447,22 @@ def push_science_file(
             file_key=new_file_key,
         )
 
-        # Cleans the file from the /tmp directory in case of execution environment reuse
-        if Path(f"/tmp/{calibrated_filename}").exists():
-            Path(calibrated_filename).unlink()  # This deletes the file
-            print(f'File {Path(calibrated_filename)} successfully cleaned up from execution environment directory in case of reuse.')
+        # Get tmp directory
+        temp_dir = Path(tempfile.gettempdir())
+        file_path = temp_dir / calibrated_filename
+
+        # Perform the cleanup
+        try:
+            file_path.unlink()  # Attempt to delete the file
+            print(f'File {file_path} successfully cleaned up.')
+        except FileNotFoundError:
+            # Handle the case where the file doesn't exist
+            print(f"File {file_path} does not exist, no need to clean up.")
+        except OSError as e:
+            if e.errno == 30:  # Read-only file system
+                print(f"Could not delete {calibrated_filename}: read-only file system.")
+            else:
+                raise  # Re-raise if it's a different issue
 
     else:
         log.info(
