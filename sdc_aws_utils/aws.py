@@ -446,11 +446,8 @@ def push_science_file(
             file_key=new_file_key,
         )
 
-        log.info(f"Info {calibrated_filename} and PATH {Path(calibrated_filename)}")
-        log.info(f"Info {calibrated_filename} and PATH {Path(calibrated_filename)}")
-
         # Cleans the file from the /tmp directory in case of execution environment reuse
-        if Path(calibrated_filename).exists():
+        if Path(f"/tmp/{calibrated_filename}").exists():
             Path(calibrated_filename).unlink()  # This deletes the file
             print(f'File {Path(calibrated_filename)} successfully cleaned up from execution environment directory in case of reuse.')
 
