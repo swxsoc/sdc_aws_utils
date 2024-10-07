@@ -12,12 +12,12 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "<3.13,>=3.9"
-slack_sdk = "3.19.5"
+slack_sdk = ">=3.19.5"
 numpy = ">=1.18.0"
-boto3 = "1.28.4"
+boto3 = ">=1.28.4"
 astropy = ">=5.1.1"
 scipy = ">=1.10.0"
-psycopg2-binary = "2.9.7"
+psycopg2-binary = ">=2.9.7"
 
 
 [tool.poetry.group.dev.dependencies]
