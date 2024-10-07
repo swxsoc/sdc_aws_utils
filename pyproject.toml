@@ -17,6 +17,7 @@ numpy = ">=1.18.0"
 boto3 = "1.28.4"
 astropy = ">=5.1.1"
 scipy = ">=1.10.0"
+psycopg2-binary = "2.9.7"
 
 
 [tool.poetry.group.dev.dependencies]
