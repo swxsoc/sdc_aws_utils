@@ -28,9 +28,19 @@ INSTR_TO_BUCKET_NAME = {this_instr: f"{MISSION_NAME}-{this_instr}" for this_inst
 INSTR_TO_PKG = dict(zip(INSTR_NAMES, INSTR_PKG))
 
 # Import parser and writer from util
-parser = util.parse_science_filename
-writer = util.create_science_filename
+def parser(file):
+ util.parse_science_filename(file)
 
+def writer(
+    instrument: str,
+    time: str,
+    level: str,
+    version: str,
+    mode: str = "",
+    descriptor: str = "",
+    test: bool = False,
+):
+    util.create_science_filename(instrument,time,level,version,mode,descriptor,test)
 
 # Get Incoming Bucket Name
 def get_incoming_bucket(environment: str = "DEVELOPMENT") -> str:
