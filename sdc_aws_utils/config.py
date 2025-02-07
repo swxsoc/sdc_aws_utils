@@ -3,7 +3,12 @@ import yaml
 
 from sdc_aws_utils.logging import log
 import swxsoc
-from swxsoc.util import util
+from swxsoc.util.util import create_science_filename as writer, parse_science_filename as parser
+
+__all__ = [
+    "parser",
+    "writer",
+]
 
 # Read config file
 mission_config = swxsoc.config["mission"]
@@ -26,10 +31,6 @@ else:
 INSTR_PKG = [f"{MISSION_NAME}_{this_instr}" for this_instr in INSTR_NAMES]
 INSTR_TO_BUCKET_NAME = {this_instr: f"{MISSION_NAME}-{this_instr}" for this_instr in INSTR_NAMES}
 INSTR_TO_PKG = dict(zip(INSTR_NAMES, INSTR_PKG))
-
-# Import parser and writer from util
-parser = util.parse_science_filename
-writer = util.create_science_filename
 
 # Get Incoming Bucket Name
 def get_incoming_bucket(environment: str = "DEVELOPMENT") -> str:
