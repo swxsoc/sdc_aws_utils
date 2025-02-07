@@ -29,7 +29,10 @@ INSTR_TO_PKG = dict(zip(INSTR_NAMES, INSTR_PKG))
 
 # Import parser and writer from util
 def parser(file):
- util.parse_science_filename(file)
+    try:
+        util.parse_science_filename(file)
+    except Exception as e:
+        raise e
 
 def writer(
     instrument: str,
@@ -40,7 +43,10 @@ def writer(
     descriptor: str = "",
     test: bool = False,
 ):
-    util.create_science_filename(instrument,time,level,version,mode,descriptor,test)
+    try:
+        util.create_science_filename(instrument,time,level,version,mode,descriptor,test)
+    except Exception as e:
+        raise e
 
 # Get Incoming Bucket Name
 def get_incoming_bucket(environment: str = "DEVELOPMENT") -> str:
