@@ -11,6 +11,7 @@ log_file_format = "%(asctime)s, %(origin)s, %(levelname)s, %(message)s"
 def configure_logger():
     # Set log level
     environment = os.getenv("LAMBDA_ENVIRONMENT", "DEVELOPMENT")
+    log.propagate = True  # Ensures propagation to the root logger
     log.setLevel(logging.DEBUG)
     if environment == "PRODUCTION":
         log.setLevel(logging.INFO)
