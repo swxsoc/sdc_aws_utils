@@ -71,7 +71,11 @@ def create_s3_file_key(science_file_parser: Callable, old_file_key: str) -> str:
     """
     try:
         science_file = science_file_parser(old_file_key)
-        reference_timestamp = datetime.strptime(science_file["time"].value, "%Y-%m-%dT%H:%M:%S.%f")
+        # Make sure `science_file["time"].value` is a string before passing to strptime
+        if isinstance(science_file["time"].value, datetime):
+            reference_timestamp = science_file["time"].value  # Use it directly if it's a datetime object
+        else:
+            reference_timestamp = datetime.strptime(science_file["time"].value, "%Y-%m-%dT%H:%M:%S.%f")  # If it's a string, parse it
 
         # Get Year from science file 'time' key time object
         year = reference_timestamp.year
