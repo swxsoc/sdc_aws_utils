@@ -104,7 +104,7 @@ def create_s3_file_key(science_file_parser: Callable, old_file_key: str) -> str:
             descriptor = descriptor_mapping[descriptor]
 
         # Get first valid_data_level from config
-        valid_data_levels = config.get("valid_data_levels", ["l0", "l1", "ql"])
+        valid_data_levels = config.get("mission").get("valid_data_levels", ["l0", "l1", "ql"])
 
         if level == valid_data_levels[0]:
             new_file_key = f"{level}/{year}/{month}/{day}/{old_file_key}"
