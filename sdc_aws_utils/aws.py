@@ -10,7 +10,7 @@ import shutil
 import boto3
 import botocore
 
-from sdc_aws_utils.logging import log
+from sdc_aws_utils.logging import log, config
 
 
 # Function to create boto3 s3 client session with credentials with try and except
@@ -62,34 +62,60 @@ def parse_file_key(file_path: str) -> str:
 
 def create_s3_file_key(science_file_parser: Callable, old_file_key: str) -> str:
     """
-    Generate a full S3 file key in the format:
-    {level}/{year}/{month}/{file_key}.
-    :param file_key: The name of the file
-    :type file_key: str
-    :return: The full S3 file key
-    :rtype: str
+    Generate an S3 key based on the file's metadata and expected path structure.
+
+    Expected output formats:
+    - raw: Padre/meddea/raw/{year}/{month}/{day}/
+    - l0:  Padre/meddea/l0/{descriptor}/{year}/{month}/
+    - l1:  Padre/meddea/l1/{descriptor}/{year}/{month}/
+
+    The descriptor (e.g., spectrum, eventlist, housekeeping) is extracted from the parsed metadata.
+
+    :param science_file_parser: A callable that returns metadata from the file key.
+    :param old_file_key: The original file name/key.
+    :return: The formatted S3 file key.
     """
     try:
         science_file = science_file_parser(old_file_key)
-        # Make sure `science_file["time"].value` is a string before passing to strptime
-        if isinstance(science_file["time"].value, datetime):
-            reference_timestamp = science_file["time"].value  # Use it directly if it's a datetime object
+        time_value = science_file["time"].value
+
+        if isinstance(time_value, datetime):
+            timestamp = time_value
         else:
-            reference_timestamp = datetime.strptime(science_file["time"].value, "%Y-%m-%dT%H:%M:%S.%f")  # If it's a string, parse it
+            timestamp = datetime.strptime(time_value, "%Y-%m-%dT%H:%M:%S.%f")
 
-        # Get Year from science file 'time' key time object
-        year = reference_timestamp.year
-        month = reference_timestamp.month
-        if month < 10:
-            month = f"0{month}"
+        year = timestamp.year
+        month = f"{timestamp.month:02d}"
+        day = f"{timestamp.day:02d}"
+        level = science_file["level"]
+        descriptor = science_file.get("descriptor")
 
-        new_file_key = f"{science_file['level']}/{year}/{month}/{old_file_key}"
+        if not descriptor:
+            descriptor = "unknown"
+
+        # Short names to long names mapping for descriptors
+        descriptor_mapping = {
+            "spec": "spectrum",
+            "eventlist": "eventlist",
+            "hk": "housekeeping",
+        }
+
+        if descriptor in descriptor_mapping:
+            descriptor = descriptor_mapping[descriptor]
+
+        # Get first valid_data_level from config
+        valid_data_levels = config.get("valid_data_levels", ["l0", "l1", "ql"])
+
+        if level == valid_data_levels[0]:
+            new_file_key = f"{level}/{year}/{month}/{day}/{old_file_key}"
+        else:
+            new_file_key = f"{level}/{descriptor}/{year}/{month}/{old_file_key}"
 
         return new_file_key
 
-    except KeyError as e:
-        log.error({"status": "ERROR", "message": e})
-        raise e
+    except Exception as e:
+        log.error({"status": "ERROR", "message": str(e), "file_key": old_file_key})
+        raise
 
 
 def list_files_in_bucket(s3_client, bucket_name: str) -> list:
@@ -332,9 +358,13 @@ def invoke_reprocessing_lambda(bucket: str, key: str, environment: str) -> None:
     """
     # Create the JSON structure
     data = {
-        "Records": [{
-            "Sns": {"Message": json.dumps({"Records": [{"s3": {"bucket": {"name": bucket}, "object": {"key": key}}}]})}
-        }]
+        "Records": [
+            {
+                "Sns": {
+                    "Message": json.dumps({"Records": [{"s3": {"bucket": {"name": bucket}, "object": {"key": key}}}]})
+                }
+            }
+        ]
     }
 
     # Initialize a boto3 client for Lambda

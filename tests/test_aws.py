@@ -5,6 +5,7 @@ import boto3
 import botocore
 import pytest
 from swxsoc.util import parse_science_filename
+from swxsoc import _reconfigure
 from moto import mock_s3, mock_timestreamwrite
 
 from sdc_aws_utils.aws import (
@@ -103,14 +104,21 @@ def test_create_s3_file_key():
 
     valid_key = create_s3_file_key(parser, old_file_key=test_valid_file_key)
 
-    assert valid_key == "l0/2022/12/swxsoc_EEA_l0_2022335-200137_v01.bin"
+    assert valid_key == "l0/2022/12/01/swxsoc_EEA_l0_2022335-200137_v01.bin"
 
     # Test CDF file
-    test_valid_file_key = "swxsoc_eea_ql_20230205T000006_v1.0.01.cdf"
+    test_valid_file_key = "swxsoc_eea_ql_eventlist_20230205T000006_v1.0.01.cdf"
 
     valid_key = create_s3_file_key(parser, old_file_key=test_valid_file_key)
 
-    assert valid_key == "ql/2023/02/swxsoc_eea_ql_20230205T000006_v1.0.01.cdf"
+    assert valid_key == "ql/eventlist/2023/02/swxsoc_eea_ql_eventlist_20230205T000006_v1.0.01.cdf"
+
+    # Test CDF file
+    test_valid_file_key = "swxsoc_eea_l1_hk_20230205T000006_v1.0.01.cdf"
+
+    valid_key = create_s3_file_key(parser, old_file_key=test_valid_file_key)
+
+    assert valid_key == "l1/housekeeping/2023/02/swxsoc_eea_l1_hk_20230205T000006_v1.0.01.cdf"
 
     def test_parser(filename):
         return {"level": "l0"}
@@ -289,7 +297,7 @@ def test_file_key_generation():
     file_key = push_science_file(parse_science_filename, "swxsoc-eea", filename, True)
 
     # Verify
-    assert file_key == "l0/2023/02/swxsoc_EEA_l0_2023042-000000_v0.bin"
+    assert file_key == "l0/2023/02/11/swxsoc_EEA_l0_2023042-000000_v0.bin"
 
 
 @pytest.mark.parametrize("dry_run", [False, True])
@@ -298,7 +306,7 @@ def test_s3_upload(dry_run):
     # Setup
     bucket = "swxsoc-eea"
     filename = "swxsoc_EEA_l0_2023042-000000_v0.bin"
-    expected_key = "l0/2023/02/swxsoc_EEA_l0_2023042-000000_v0.bin"
+    expected_key = "l0/2023/02/11/swxsoc_EEA_l0_2023042-000000_v0.bin"
 
     # Setup S3
     s3_client = boto3.client("s3")
@@ -331,7 +339,7 @@ def test_s3_upload(dry_run):
     # Setup
     bucket = "swxsoc-eea"
     filename = "swxsoc_EEA_l0_2023042-000000_v0.bin"
-    expected_key = "l0/2023/02/swxsoc_EEA_l0_2023042-000000_v0.bin"
+    expected_key = "l0/2023/02/11/swxsoc_EEA_l0_2023042-000000_v0.bin"
 
     # Setup S3
     s3_client = boto3.client("s3")
@@ -362,7 +370,7 @@ def test_with_sdc_aws_file_path_set():
     parser_mock = lambda filename: filename
     bucket = "swxsoc-eea"
     filename = "swxsoc_EEA_l0_2023042-000000_v0.bin"
-    expected_key = "l0/2023/02/swxsoc_EEA_l0_2023042-000000_v0.bin"
+    expected_key = "l0/2023/02/11/swxsoc_EEA_l0_2023042-000000_v0.bin"
 
     os.environ["SDC_AWS_FILE_PATH"] = f"../test_data/{filename}"
 
@@ -380,7 +388,7 @@ def test_with_sdc_aws_file_path_set():
 def test_file_download_from_s3():
     # Setup
     bucket = "swxsoc-eea"
-    file_key = "l0/2023/02/swxsoc_EEA_l0_2023042-000000_v0.bin"
+    file_key = "l0/2023/02/11/swxsoc_EEA_l0_2023042-000000_v0.bin"
     parsed_file_key = "swxsoc_EEA_l0_2023042-000000_v0.bin"
 
     # Setup S3
@@ -418,7 +426,7 @@ def test_file_download_with_env_var_set():
 def test_dry_run_behavior(dry_run):
     # Setup
     bucket = "swxsoc-eea"
-    file_key = "l0/2023/02/swxsoc_EEA_l0_2023042-000000_v0.bin"
+    file_key = "l0/2023/02/11/swxsoc_EEA_l0_2023042-000000_v0.bin"
 
     # Setup S3
     s3_client = boto3.client("s3")

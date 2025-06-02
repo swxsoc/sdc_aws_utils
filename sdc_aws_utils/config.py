@@ -32,6 +32,7 @@ INSTR_PKG = [f"{MISSION_NAME}_{this_instr}" for this_instr in INSTR_NAMES]
 INSTR_TO_BUCKET_NAME = {this_instr: f"{MISSION_NAME}-{this_instr}" for this_instr in INSTR_NAMES}
 INSTR_TO_PKG = dict(zip(INSTR_NAMES, INSTR_PKG))
 
+
 # Get Incoming Bucket Name
 def get_incoming_bucket(environment: str = "DEVELOPMENT") -> str:
     """
