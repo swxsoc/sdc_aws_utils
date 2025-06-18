@@ -111,7 +111,6 @@ def create_s3_file_key(science_file_parser: Callable, old_file_key: str) -> str:
         else:
             new_file_key = f"{level}/{descriptor}/{year}/{month}/{day}/{old_file_key}"
 
-
         return new_file_key
 
     except Exception as e:
