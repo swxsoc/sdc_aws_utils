@@ -111,7 +111,7 @@ def test_create_s3_file_key():
 
     valid_key = create_s3_file_key(parser, old_file_key=test_valid_file_key)
 
-    assert valid_key == "ql/eventlist/2023/02/swxsoc_eea_ql_eventlist_20230205T000006_v1.0.01.cdf"
+    assert valid_key == "ql/eventlist/2023/02/05/swxsoc_eea_ql_eventlist_20230205T000006_v1.0.01.cdf"
 
     # Test CDF file
     test_valid_file_key = "swxsoc_eea_l1_hk_20230205T000006_v1.0.01.cdf"
