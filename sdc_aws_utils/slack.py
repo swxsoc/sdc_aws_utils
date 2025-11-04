@@ -55,7 +55,9 @@ def is_file_manifest(file_name: str) -> bool:
     return base_name.startswith("file_manifest")
 
 
-def generate_file_pipeline_message(file_path: str, alert_type: Optional[str] = None) -> str or tuple:
+def generate_file_pipeline_message(
+    file_path: str, bucket_name: Optional[str] = None, alert_type: Optional[str] = None
+) -> str or tuple:
     """
     Function to generate file pipeline message
     """
@@ -75,6 +77,8 @@ def generate_file_pipeline_message(file_path: str, alert_type: Optional[str] = N
             "download_error": f"File Not Downloaded - ( _{file_path}_ )",
             "error": f"File Upload Failed - ( _{file_path}_ )",
         }
+
+        # Default message - Used if no alert_type matches
         slack_message = f"Science File - ( _{file_path}_ )"
 
         if is_file_manifest(file_path):
@@ -84,8 +88,14 @@ def generate_file_pipeline_message(file_path: str, alert_type: Optional[str] = N
 
             return (slack_message, secondary_message)
 
+        # Check for specific alert type message
         if alert_type and alert_type in alert:
             slack_message = alert[alert_type]
+
+        # Add bucket name to the message if provided
+        if bucket_name:
+            slack_message += f" (Bucket: _{bucket_name}_ )"
+
         return slack_message
 
 
@@ -242,10 +252,41 @@ def parse_slack_message(message: str) -> str or None:
     return None
 
 
-def send_pipeline_notification(slack_client: WebClient, slack_channel: str, path: str, alert_type: str = None):
+def send_pipeline_notification(
+    slack_client: WebClient, slack_channel: str, path: str, bucket_name: str = None, alert_type: str = None
+):
+    """
+    Send a pipeline-related notification to a Slack channel, optionally as a threaded alert.
+    This function ensures that an initial top-level message about a given file (identified by
+    `path`) exists in the specified Slack channel and then posts an alert message as a thread
+    reply to that top-level message.
+
+    Parameters
+    ----------
+    slack_client (WebClient):
+        Authenticated Slack WebClient used to send and query messages.
+    slack_channel (str):
+        Slack channel ID or name where messages should be posted.
+    path (str):
+        Filesystem or pipeline path that identifies the science file (used to generate
+        message content and to correlate messages).
+    bucket_name (str | None):
+        Optional S3 bucket name associated with the file
+    alert_type (str | None):
+        Optional label or category for the alert (e.g., "ERROR", "WARN",
+        "INFO"). When provided, it will be included in the threaded alert message.
+
+    Returns
+    -------
+    None
+
+    Notes
+    -----
+    - This function swallows exceptions and logs them; callers will not receive exceptions.
+    """
     try:
         if not is_file_manifest(path):
-            slack_message = generate_file_pipeline_message(path)
+            slack_message = generate_file_pipeline_message(file_path=path, bucket_name=bucket_name)
 
             # Get ts of the slack message
             ts = get_message_ts(
@@ -255,7 +296,7 @@ def send_pipeline_notification(slack_client: WebClient, slack_channel: str, path
             )
 
             if ts is None:
-                slack_message = generate_file_pipeline_message(path)
+                slack_message = generate_file_pipeline_message(file_path=path, bucket_name=bucket_name)
                 # Send Slack Notification about the event
                 send_slack_notification(
                     slack_client=slack_client,
@@ -268,7 +309,9 @@ def send_pipeline_notification(slack_client: WebClient, slack_channel: str, path
                     science_filename=path,  # Pass the message_ts instead of slack_message
                 )
 
-            slack_message = generate_file_pipeline_message(path, alert_type=alert_type)
+            slack_message = generate_file_pipeline_message(
+                file_path=path, bucket_name=bucket_name, alert_type=alert_type
+            )
 
             # Send Slack Notification about the event within thread
             send_slack_notification(
