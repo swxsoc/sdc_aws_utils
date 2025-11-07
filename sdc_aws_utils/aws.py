@@ -228,7 +228,7 @@ def copy_file_in_s3(
     delete_source_file: bool = True,
 ) -> None:
     """
-    Copy a file from one S3 bucket to another. Optionally delete the source file to make it a move operation.
+    Copy a file from one S3 bucket to another overwriting a file if one already exists. Optionally delete the source file to make it a move operation.
 
     NOTE: This operates as a move operation by default, with `delete_source_file=True`.
     If you want this to behave as a true `copy` operation, make sure to set `delete_source_file=False` explicitly.
