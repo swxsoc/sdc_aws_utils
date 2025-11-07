@@ -118,7 +118,7 @@ def test_create_s3_file_key():
 
     valid_key = create_s3_file_key(parser, old_file_key=test_valid_file_key)
 
-    assert valid_key == "l1/housekeeping/2023/02/swxsoc_eea_l1_hk_20230205T000006_v1.0.01.cdf"
+    assert valid_key == "l1/housekeeping/2023/02/05/swxsoc_eea_l1_hk_20230205T000006_v1.0.01.cdf"
 
     def test_parser(filename):
         return {"level": "l0"}
@@ -197,11 +197,24 @@ def test_copy_file_in_s3():
 
     s3_client.put_object(Bucket=SOURCE_BUCKET, Key=FILE_KEY, Body="test data")
 
+    # Test default behavior (move operation - delete_source_file=True)
     copy_file_in_s3(s3_client, SOURCE_BUCKET, DEST_BUCKET, FILE_KEY, NEW_FILE_KEY)
 
-    # Check if the file exists in the new location
+    # Check if the file exists in the destination
     assert s3_client.get_object(Bucket=DEST_BUCKET, Key=NEW_FILE_KEY)["Body"].read().decode() == "test data"
 
+    # Check if the file has been deleted from the source (move operation)
+    assert not object_exists(s3_client, SOURCE_BUCKET, FILE_KEY)
+
+    # Test copy operation (delete_source_file=False)
+    s3_client.put_object(Bucket=SOURCE_BUCKET, Key=FILE_KEY, Body="test data")
+    copy_file_in_s3(s3_client, SOURCE_BUCKET, DEST_BUCKET, FILE_KEY, "another_new_file.txt", delete_source_file=False)
+
+    # Check if the file exists in both locations (copy operation)
+    assert s3_client.get_object(Bucket=DEST_BUCKET, Key="another_new_file.txt")["Body"].read().decode() == "test data"
+    assert object_exists(s3_client, SOURCE_BUCKET, FILE_KEY)
+
+    # Test error handling
     try:
         copy_file_in_s3(s3_client, SOURCE_BUCKET, DEST_BUCKET, "non_existent_key", NEW_FILE_KEY)
         assert False
