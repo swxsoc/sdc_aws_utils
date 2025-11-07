@@ -122,15 +122,18 @@ def test_generate_file_pipeline_message_alert_type():
 
 
 def test_generate_file_pipeline_message_alert_type():
-    assert generate_file_pipeline_message("path/to/file.txt", "sorted") == "File Sorted - ( _file.txt_ )"
+    assert generate_file_pipeline_message("path/to/file.txt", alert_type="sorted") == "File Sorted - ( _file.txt_ )"
 
 
 def test_generate_file_pipeline_message_alert_type():
-    assert generate_file_pipeline_message("path/to/file.txt", "non-existing key") == "Science File - ( _file.txt_ )"
+    assert (
+        generate_file_pipeline_message("path/to/file.txt", alert_type="non-existing key")
+        == "Science File - ( _file.txt_ )"
+    )
 
 
 def test_generate_file_pipeline_message_alert_type_delete():
-    assert generate_file_pipeline_message("path/to/file.txt", "delete") == None
+    assert generate_file_pipeline_message("path/to/file.txt", alert_type="delete") == None
 
 
 @patch("sdc_aws_utils.slack.is_file_manifest", return_value=True)
@@ -143,7 +146,7 @@ def test_generate_file_pipeline_message_manifest(mocked_manifest):
 
 
 def test_generate_file_pipeline_message_sorted():
-    assert generate_file_pipeline_message("path/to/file.txt", "sorted") == "File Sorted - ( _file.txt_ )"
+    assert generate_file_pipeline_message("path/to/file.txt", alert_type="sorted") == "File Sorted - ( _file.txt_ )"
 
 
 # Test have_same_keys_and_values function

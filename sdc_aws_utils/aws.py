@@ -225,20 +225,33 @@ def copy_file_in_s3(
     destination_bucket: str,
     file_key: str,
     new_file_key: str,
+    delete_source_file: bool = True,
 ) -> None:
     """
-    Copy a file from one S3 bucket to another.
-    :param s3_client: The AWS session
-    :type s3_client: str
-    :param source_bucket: The name of the source bucket
-    :type source_bucket: str
-    :param destination_bucket: The name of the destination bucket
-    :type destination_bucket: str
-    :param file_key: The name of the file
-    :type file_key: str
-    :param new_file_key: The new name of the file
-    :type new_file_key: str
-    :return: None
+    Copy a file from one S3 bucket to another overwriting a file if one already exists. Optionally delete the source file to make it a move operation.
+
+    NOTE: This operates as a move operation by default, with `delete_source_file=True`.
+    If you want this to behave as a true `copy` operation, make sure to set `delete_source_file=False` explicitly.
+
+    Parameters
+    ----------
+    s3_client : type
+        The AWS S3 client session.
+    source_bucket : str
+        The name of the source bucket.
+    destination_bucket : str
+        The name of the destination bucket.
+    file_key : str
+        The name of the file in the source bucket.
+    new_file_key : str
+        The new name of the file in the destination bucket.
+    delete_source_file : bool, optional
+        Whether to delete the source file after copying (move operation), by default True.
+
+    Raises
+    ------
+    botocore.exceptions.ClientError
+        If there is an error during the S3 copy or delete operation.
     """
 
     try:
@@ -251,6 +264,13 @@ def copy_file_in_s3(
             Bucket=destination_bucket,
             Key=new_file_key,
         )
+        log.debug(f"Source file {file_key} copied from {source_bucket} to {destination_bucket}")
+
+        # Delete source file if requested (move operation)
+        if delete_source_file:
+            s3_client.delete_object(Bucket=source_bucket, Key=file_key)
+            log.debug(f"Source file {file_key} deleted from {source_bucket}")
+
     except botocore.exceptions.ClientError as e:
         log.error({"status": "ERROR", "message": e})
         raise e
