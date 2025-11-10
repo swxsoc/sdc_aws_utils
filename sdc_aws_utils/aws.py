@@ -266,8 +266,12 @@ def copy_file_in_s3(
         )
         log.debug(f"Source file {file_key} copied from {source_bucket} to {destination_bucket}")
 
+        # Verify the file was copied successfully
+        success = object_exists(s3_client, destination_bucket, new_file_key)
+        log.debug(f"File copy verification for {new_file_key} in {destination_bucket}: {success}")
+        
         # Delete source file if requested (move operation)
-        if delete_source_file:
+        if delete_source_file and success:
             s3_client.delete_object(Bucket=source_bucket, Key=file_key)
             log.debug(f"Source file {file_key} deleted from {source_bucket}")
 
