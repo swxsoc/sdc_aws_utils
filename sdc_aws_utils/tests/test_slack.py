@@ -1,25 +1,19 @@
 import os
-import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, Mock, patch
 
-from slack_sdk import WebClient
-from slack_sdk.errors import SlackApiError
-import re
-from unittest.mock import Mock, patch
 import pytest
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
-from typing import Optional
 
 from sdc_aws_utils.slack import (
-    get_slack_client,
-    send_slack_notification,
-    is_file_manifest,
     generate_file_pipeline_message,
-    have_same_keys_and_values,
     get_message_ts,
+    get_slack_client,
+    have_same_keys_and_values,
+    is_file_manifest,
     parse_slack_message,
     send_pipeline_notification,
+    send_slack_notification,
 )
 
 
@@ -201,7 +195,7 @@ def test_parse_slack_message():
     assert parse_slack_message("Science File - ( _test with spaces.txt_ )") == "test with spaces.txt"
 
 
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 
 @pytest.fixture
@@ -215,11 +209,11 @@ def test_get_message_ts(mock_slack_client):
     mock_slack_client.conversations_history.return_value = {
         "messages": [
             {"text": "Some random text"},
-            {"text": "Science File - ( _swxsoc_eea_ql_20230205T000006_v1.0.01.cdf_ )", "ts": "12345"},
+            {"text": "Science File - ( _hermes_eea_ql_20230205T000006_v1.0.01.cdf_ )", "ts": "12345"},
         ]
     }
 
-    ts = get_message_ts(mock_slack_client, "#general", "swxsoc_eea_ql_20230205T000006_v1.0.01.cdf")
+    ts = get_message_ts(mock_slack_client, "#general", "hermes_eea_ql_20230205T000006_v1.0.01.cdf")
     assert ts == "12345"
 
 

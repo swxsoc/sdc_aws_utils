@@ -2,13 +2,12 @@ import os
 import re
 import time
 from datetime import datetime
-from typing import Optional
 
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-from sdc_aws_utils.logging import log
 from sdc_aws_utils.config import parser
+from sdc_aws_utils.logging import log
 
 
 def get_slack_client(slack_token: str) -> WebClient:
@@ -56,7 +55,7 @@ def is_file_manifest(file_name: str) -> bool:
 
 
 def generate_file_pipeline_message(
-    file_path: str, bucket_name: Optional[str] = None, alert_type: Optional[str] = None
+    file_path: str, bucket_name: str | None = None, alert_type: str | None = None
 ) -> str or tuple:
     """
     Function to generate file pipeline message
@@ -83,7 +82,7 @@ def generate_file_pipeline_message(
 
         if is_file_manifest(file_path):
             slack_message = f"Manifest File - ( _{file_path}_ )"
-            with open(file_path, "r") as file:
+            with open(file_path) as file:
                 secondary_message = file.read()
 
             return (slack_message, secondary_message)
@@ -103,10 +102,10 @@ def send_slack_notification(
     slack_client: WebClient,
     slack_channel: str,
     slack_message: str,
-    alert_type: Optional[str] = None,
+    alert_type: str | None = None,
     slack_max_retries: int = 5,
     slack_retry_delay: int = 5,
-    thread_ts: Optional[str] = None,
+    thread_ts: str | None = None,
 ) -> bool:
     log.debug(f"Sending Slack Notification to {slack_channel}")
     color = {
@@ -212,7 +211,7 @@ def have_same_keys_and_values(dicts, keys_to_check):
     return len({tuple((k, d[k]) for k in keys_to_check if k in d) for d in dicts}) == 1
 
 
-def get_message_ts(slack_client: WebClient, slack_channel: str, science_filename: str) -> Optional[str]:
+def get_message_ts(slack_client: WebClient, slack_channel: str, science_filename: str) -> str | None:
     try:
         response = slack_client.conversations_history(channel=slack_channel)
         messages = response["messages"]

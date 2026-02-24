@@ -1,7 +1,9 @@
-import os
 import logging
+import os
+
 import pytest
-from sdc_aws_utils.logging import log, configure_logger
+
+from sdc_aws_utils.logging import configure_logger, log
 
 
 def test_logger_level_development():
