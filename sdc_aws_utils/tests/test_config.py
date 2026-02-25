@@ -1,3 +1,5 @@
+import pytest
+
 def test_get_incoming_bucket_development():
     from sdc_aws_utils import config
 
@@ -40,3 +42,38 @@ def test_get_all_instrument_buckets_production():
     buckets = config.get_all_instrument_buckets("PRODUCTION")
     expected_buckets = ["hermes-eea", "hermes-spani", "hermes-merit", "hermes-nemisis"]
     assert sorted(buckets) == sorted(expected_buckets)
+
+def test_get_instrument_package_hermes(use_mission):
+    from sdc_aws_utils import config
+
+    # Mission: hermes
+    assert config.get_instrument_package("eea") == "hermes_eea"
+    assert config.get_instrument_package("EEA") == "hermes_eea"
+    assert config.get_instrument_package("nemisis") == "hermes_nemisis"
+    assert config.get_instrument_package("Nemisis") == "hermes_nemisis"
+    with pytest.raises(ValueError):
+        config.get_instrument_package("not_an_inst")
+
+
+@pytest.mark.parametrize("use_mission", ["padre"], indirect=True)
+def test_get_instrument_package_padre(use_mission):
+    from sdc_aws_utils import config
+    
+    # Mission: padre
+    assert config.get_instrument_package("meddea") == "padre_meddea"
+    assert config.get_instrument_package("MEDDEA") == "padre_meddea"
+    assert config.get_instrument_package("sharp") == "padre_sharp"
+    assert config.get_instrument_package("SHARP") == "padre_sharp"
+    with pytest.raises(ValueError):
+        config.get_instrument_package("fake")
+
+
+@pytest.mark.parametrize("use_mission", ["swxsoc_pipeline"], indirect=True)
+def test_get_instrument_package_swxsoc_pipeline(use_mission):
+    from sdc_aws_utils import config
+
+    # Mission: swxsoc_pipeline
+    assert config.get_instrument_package("reach") == "swxsoc_reach"
+    assert config.get_instrument_package("REACH") == "swxsoc_reach"
+    with pytest.raises(ValueError):
+        config.get_instrument_package("unknown")
