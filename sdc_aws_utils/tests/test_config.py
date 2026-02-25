@@ -1,5 +1,6 @@
 import pytest
 
+
 def test_get_incoming_bucket_development():
     from sdc_aws_utils import config
 
@@ -43,6 +44,7 @@ def test_get_all_instrument_buckets_production():
     expected_buckets = ["hermes-eea", "hermes-spani", "hermes-merit", "hermes-nemisis"]
     assert sorted(buckets) == sorted(expected_buckets)
 
+
 def test_get_instrument_package_hermes(use_mission):
     from sdc_aws_utils import config
 
@@ -58,7 +60,7 @@ def test_get_instrument_package_hermes(use_mission):
 @pytest.mark.parametrize("use_mission", ["padre"], indirect=True)
 def test_get_instrument_package_padre(use_mission):
     from sdc_aws_utils import config
-    
+
     # Mission: padre
     assert config.get_instrument_package("meddea") == "padre_meddea"
     assert config.get_instrument_package("MEDDEA") == "padre_meddea"

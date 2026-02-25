@@ -2,13 +2,13 @@ import os
 
 import swxsoc
 from swxsoc.util.util import create_science_filename as writer
-from swxsoc.util.util import parse_science_filename as parser
 from swxsoc.util.util import get_instrument_package
+from swxsoc.util.util import parse_science_filename as parser
 
 __all__ = [
+    "get_instrument_package",
     "parser",
     "writer",
-    "get_instrument_package",
 ]
 
 # Read config file
@@ -34,6 +34,7 @@ else:
 
 INSTR_PKG = [f"{MISSION_NAME}_{this_instr}" for this_instr in INSTR_NAMES]
 INSTR_TO_BUCKET_NAME = {this_instr: f"{BUCKET_MISSION_NAME}-{this_instr}" for this_instr in INSTR_NAMES}
+
 
 def _reconfigure_globals() -> None:
     """Re-read swxsoc config and update module-level globals.
