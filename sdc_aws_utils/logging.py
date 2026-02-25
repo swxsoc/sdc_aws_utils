@@ -1,15 +1,14 @@
 import logging
 import os
 
-from swxsoc.util.config import load_config
+from swxsoc import config, log
 
-# Configure logging
-from swxsoc.util.logger import _init_log
-
-# Load user configuration
-config = load_config()
-
-log = _init_log(config=config)
+__all__ = [
+    "config",
+    "configure_logger",
+    "log",
+    "log_file_format",
+]
 
 # Format for log file entries log_file_format = %(asctime)s, %(origin)s, %(levelname)s, %(message)s
 log_file_format = "%(asctime)s, %(origin)s, %(levelname)s, %(message)s"
