@@ -1,16 +1,14 @@
+import json
 import os
 import time
-import json
+from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
-import tempfile
-from typing import Callable, Optional
-import shutil
 
 import boto3
 import botocore
 
-from sdc_aws_utils.logging import log, config
+from sdc_aws_utils.logging import config, log
 
 
 # Function to create boto3 s3 client session with credentials with try and except
@@ -269,7 +267,7 @@ def copy_file_in_s3(
         # Verify the file was copied successfully
         success = object_exists(s3_client, destination_bucket, new_file_key)
         log.debug(f"File copy verification for {new_file_key} in {destination_bucket}: {success}")
-        
+
         # Delete source file if requested (move operation)
         if delete_source_file and success:
             s3_client.delete_object(Bucket=source_bucket, Key=file_key)
@@ -395,7 +393,7 @@ def invoke_reprocessing_lambda(bucket: str, key: str, environment: str) -> None:
     lambda_client = boto3.client("lambda")
 
     # Specify the Lambda function name
-    function_name = f'{"dev-" if environment == "DEVELOPMENT" else ""}aws_sdc_processing_lambda_function'
+    function_name = f"{'dev-' if environment == 'DEVELOPMENT' else ''}aws_sdc_processing_lambda_function"
 
     log.info(f"Invoking Lambda function {function_name} with payload {data}")
 
@@ -406,7 +404,7 @@ def invoke_reprocessing_lambda(bucket: str, key: str, environment: str) -> None:
 
 def get_science_file(
     instrument_bucket_name: str, file_key: str, parsed_file_key: str, dry_run: bool = False
-) -> Optional[Path]:
+) -> Path | None:
     """
     Downloads the file from the specified S3 bucket, if not in a dry run.
     If a file path is specified in the environment variables, it uses that instead.

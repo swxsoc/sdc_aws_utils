@@ -1,9 +1,10 @@
-import os
 import logging
+import os
+
+from swxsoc.util.config import load_config
 
 # Configure logging
 from swxsoc.util.logger import _init_log
-from swxsoc.util.config import load_config, print_config
 
 # Load user configuration
 config = load_config()

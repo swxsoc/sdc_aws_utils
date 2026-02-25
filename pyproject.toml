@@ -11,7 +11,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "<3.13,>=3.9"
+python = ">=3.10"
 slack_sdk = ">=3.19.5"
 numpy = ">=1.18.0"
 boto3 = ">=1.28.4"
@@ -27,7 +27,7 @@ pytest-cov = ">=4.0.0"
 mypy = ">=0.981"
 pre-commit = ">=2.20.0"
 tox = ">=3.25.1"
-moto = "4.1.6"
+moto = ">=5.0.0"
 astropy = ">=5.1.1"
 pytest-astropy = ">=0.10.0"
 psycopg = "3.1.8"
@@ -44,7 +44,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 120
-target-version = ['py37']
+target-version = ['py310']
 preview = true
 
 [tool.mypy]
@@ -58,7 +58,7 @@ warn_unused_ignores = "True"
 show_error_codes = "True"
 
 [tool.ruff]
-target-version = "py37"
+target-version = "py310"
 line-length = 120
 fix = true
 select = [
