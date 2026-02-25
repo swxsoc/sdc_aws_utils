@@ -195,9 +195,6 @@ def test_parse_slack_message():
     assert parse_slack_message("Science File - ( _test with spaces.txt_ )") == "test with spaces.txt"
 
 
-from unittest.mock import patch
-
-
 @pytest.fixture
 def mock_slack_client():
     client = Mock(spec=WebClient)

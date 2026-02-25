@@ -6,11 +6,6 @@ These fixtures are automatically available to all test modules in the package.
 
 import os
 
-# Set HERMES as default mission BEFORE any test modules import sdc_aws_utils.config.
-# This ensures module-level globals are initialized with the correct mission config.
-# Must be set before swxsoc is imported so it picks up the right mission on first load.
-os.environ.setdefault("SWXSOC_MISSION", "hermes")
-
 import pytest
 
 
@@ -31,10 +26,14 @@ def default_test_mission(monkeypatch):
     """
     import swxsoc
 
+    from sdc_aws_utils.config import _reconfigure_globals
+
     # Only set if not already set (allows tests to override)
     if "SWXSOC_MISSION" not in os.environ:
         monkeypatch.setenv("SWXSOC_MISSION", "hermes")
         swxsoc._reconfigure()
+        # Re-read module-level globals in config.py so they reflect the new mission
+        _reconfigure_globals()
 
 
 @pytest.fixture(scope="function")
@@ -75,9 +74,12 @@ def use_mission(request, monkeypatch):
     """
     import swxsoc
 
+    from sdc_aws_utils.config import _reconfigure_globals
+
     mission = request.param if hasattr(request, "param") else "hermes"
     monkeypatch.setenv("SWXSOC_MISSION", mission)
     swxsoc._reconfigure()
+    _reconfigure_globals()
     yield mission
     # Explicitly reconfigure back to default after test completes
     # This is necessary because swxsoc.config is module-level state
@@ -85,3 +87,4 @@ def use_mission(request, monkeypatch):
     # This ensures the config is reset even if monkeypatch cleanup hasn't run yet
     monkeypatch.setenv("SWXSOC_MISSION", "hermes")
     swxsoc._reconfigure()
+    _reconfigure_globals()

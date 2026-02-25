@@ -31,13 +31,12 @@ def test_get_all_instrument_buckets_development():
 
     buckets = config.get_all_instrument_buckets("DEVELOPMENT")
     expected_buckets = ["dev-hermes-eea", "dev-hermes-spani", "dev-hermes-merit", "dev-hermes-nemisis"]
-
-    assert buckets.sort() == expected_buckets.sort()
+    assert sorted(buckets) == sorted(expected_buckets)
 
 
 def test_get_all_instrument_buckets_production():
     from sdc_aws_utils import config
 
     buckets = config.get_all_instrument_buckets("PRODUCTION")
-    excepted_buckets = ["hermes-eea", "hermes-spani", "hermes-merit", "hermes-nemisis"]
-    assert buckets.sort() == excepted_buckets.sort()
+    expected_buckets = ["hermes-eea", "hermes-spani", "hermes-merit", "hermes-nemisis"]
+    assert sorted(buckets) == sorted(expected_buckets)

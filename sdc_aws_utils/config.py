@@ -35,6 +35,30 @@ INSTR_TO_BUCKET_NAME = {this_instr: f"{BUCKET_MISSION_NAME}-{this_instr}" for th
 INSTR_TO_PKG = dict(zip(INSTR_NAMES, INSTR_PKG))
 
 
+def _reconfigure_globals() -> None:
+    """Re-read swxsoc config and update module-level globals.
+
+    Call this after ``swxsoc._reconfigure()`` so that bucket names and
+    instrument mappings reflect the newly-active mission.
+    """
+    global MISSION_NAME, INSTR_NAMES, BUCKET_MISSION_NAME, INCOMING_BUCKET
+    global INSTR_PKG, INSTR_TO_BUCKET_NAME, INSTR_TO_PKG
+
+    _cfg = swxsoc.config["mission"]
+    MISSION_NAME = _cfg["mission_name"]
+    INSTR_NAMES = _cfg["inst_names"]
+    BUCKET_MISSION_NAME = MISSION_NAME.replace("_", "-")
+
+    if os.getenv("SWXSOC_INCOMING_BUCKET") is not None:
+        INCOMING_BUCKET = os.getenv("SWXSOC_INCOMING_BUCKET")
+    else:
+        INCOMING_BUCKET = f"{BUCKET_MISSION_NAME}-incoming"
+
+    INSTR_PKG = [f"{MISSION_NAME}_{this_instr}" for this_instr in INSTR_NAMES]
+    INSTR_TO_BUCKET_NAME = {this_instr: f"{BUCKET_MISSION_NAME}-{this_instr}" for this_instr in INSTR_NAMES}
+    INSTR_TO_PKG = dict(zip(INSTR_NAMES, INSTR_PKG))
+
+
 # Get Incoming Bucket Name
 def get_incoming_bucket(environment: str = "DEVELOPMENT") -> str:
     """
