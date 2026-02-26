@@ -2,9 +2,11 @@ import os
 
 import swxsoc
 from swxsoc.util.util import create_science_filename as writer
+from swxsoc.util.util import get_instrument_package
 from swxsoc.util.util import parse_science_filename as parser
 
 __all__ = [
+    "get_instrument_package",
     "parser",
     "writer",
 ]
@@ -32,7 +34,6 @@ else:
 
 INSTR_PKG = [f"{MISSION_NAME}_{this_instr}" for this_instr in INSTR_NAMES]
 INSTR_TO_BUCKET_NAME = {this_instr: f"{BUCKET_MISSION_NAME}-{this_instr}" for this_instr in INSTR_NAMES}
-INSTR_TO_PKG = dict(zip(INSTR_NAMES, INSTR_PKG))
 
 
 def _reconfigure_globals() -> None:
@@ -42,7 +43,7 @@ def _reconfigure_globals() -> None:
     instrument mappings reflect the newly-active mission.
     """
     global MISSION_NAME, INSTR_NAMES, BUCKET_MISSION_NAME, INCOMING_BUCKET
-    global INSTR_PKG, INSTR_TO_BUCKET_NAME, INSTR_TO_PKG
+    global INSTR_PKG, INSTR_TO_BUCKET_NAME
 
     _cfg = swxsoc.config["mission"]
     MISSION_NAME = _cfg["mission_name"]
@@ -56,7 +57,6 @@ def _reconfigure_globals() -> None:
 
     INSTR_PKG = [f"{MISSION_NAME}_{this_instr}" for this_instr in INSTR_NAMES]
     INSTR_TO_BUCKET_NAME = {this_instr: f"{BUCKET_MISSION_NAME}-{this_instr}" for this_instr in INSTR_NAMES}
-    INSTR_TO_PKG = dict(zip(INSTR_NAMES, INSTR_PKG))
 
 
 # Get Incoming Bucket Name
