@@ -18,7 +18,7 @@ boto3 = ">=1.28.4"
 astropy = ">=5.1.1"
 scipy = ">=1.10.0"
 psycopg2-binary = ">=2.9.7"
-swxsoc = { git = "https://github.com/swxsoc/swxsoc.git" }
+swxsoc = { git = "https://github.com/swxsoc/swxsoc.git", branch = "main" }
 
 
 [tool.poetry.group.dev.dependencies]
