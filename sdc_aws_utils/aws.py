@@ -74,10 +74,10 @@ def create_s3_file_key(science_file_parser: Callable, old_file_key: str) -> str:
     :return: The formatted S3 file key.
     """
     try:
-        # skip parsing and put any files that contain latest into their own directory
-        if "latest" in old_file_key:
-            new_file_key = f"latest/{old_file_key}"
-            return new_file_key
+        # Skip parsing and put any files whose filename contains "latest" into their own directory
+        file_name = Path(old_file_key).name
+        if "latest" in file_name:
+            return f"latest/{file_name}"
 
         science_file = science_file_parser(old_file_key)
         time_value = science_file["time"].value
