@@ -455,7 +455,7 @@ def test_dry_run_behavior(dry_run):
 
     # Verify
     if dry_run:
-        assert file_path is None
+        assert file_path.name == "hermes_EEA_l0_2023042-000000_v0.bin"
     else:
         assert file_path is not None
         assert file_path.name == "hermes_EEA_l0_2023042-000000_v0.bin"

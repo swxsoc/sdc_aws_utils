@@ -407,23 +407,55 @@ def invoke_reprocessing_lambda(bucket: str, key: str, environment: str) -> None:
     return response
 
 
-def get_science_file(
-    instrument_bucket_name: str, file_key: str, parsed_file_key: str, dry_run: bool = False
-) -> Path | None:
+def get_science_file(instrument_bucket_name: str, file_key: str, parsed_file_key: str, dry_run: bool = False) -> Path:
     """
-    Downloads the file from the specified S3 bucket, if not in a dry run.
-    If a file path is specified in the environment variables, it uses that instead.
+    Resolve the local path to a science file, downloading it from S3 when necessary.
 
-    :param instrument_bucket_name: The instrument bucket name.
-    :type instrument_bucket_name: str
-    :param file_key: The key of the file in the S3 bucket.
-    :type file_key: str
-    :param parsed_file_key: The parsed name of the file.
-    :type parsed_file_key: str
-    :param dry_run: Indicates whether the operation is a dry run.
-    :type dry_run: bool
-    :return: The path to the downloaded file or None if in a dry run.
-    :rtype: Path or None
+    The source of the file depends on the ``dry_run`` flag and a series of
+    environment variables. The resolution logic is evaluated in the following order:
+
+    1. If ``dry_run`` is ``True``, no file is downloaded and the provided
+       ``file_key`` is returned as a :class:`~pathlib.Path`.
+    2. If the ``USE_INSTRUMENT_TEST_DATA`` environment variable is set to
+       ``"True"``, the provided ``file_key`` is returned as a
+       :class:`~pathlib.Path` so that test data bundled with the instrument
+       package is used.
+    3. If the ``SDC_AWS_FILE_PATH`` environment variable is set, its value is
+       returned as a :class:`~pathlib.Path`, bypassing any S3 interaction.
+    4. Otherwise, the file is downloaded from ``instrument_bucket_name`` in S3.
+       The object's existence is verified first, and a :class:`FileNotFoundError`
+       is raised if it is missing.
+
+    Parameters
+    ----------
+    instrument_bucket_name : str
+        The name of the instrument S3 bucket to download the file from.
+    file_key : str
+        The key of the file in the S3 bucket. Also returned directly when
+        ``USE_INSTRUMENT_TEST_DATA`` is enabled.
+    parsed_file_key : str
+        The parsed name of the file, used as the local filename when downloading.
+    dry_run : bool, optional
+        Indicates whether the operation is a dry run. When ``True``, no file is
+        downloaded and the provided ``file_key`` is returned. Defaults to ``False``.
+
+    Returns
+    -------
+    pathlib.Path
+        - A :class:`~pathlib.Path` of the provided ``file_key`` if ``dry_run`` is ``True``.
+        - A :class:`~pathlib.Path` of the provided ``file_key`` if
+          ``USE_INSTRUMENT_TEST_DATA`` is ``"True"``.
+        - A :class:`~pathlib.Path` from ``SDC_AWS_FILE_PATH`` if that environment
+          variable is set.
+        - A :class:`~pathlib.Path` to the downloaded file otherwise.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the file does not exist in ``instrument_bucket_name`` and the download
+        path is taken (not a dry run and no overriding environment variables set).
+    botocore.exceptions.ClientError
+        If an error occurs while downloading the file from S3.
     """
     # Download file from instrument bucket if not a dry run
     # or use the specified file path
@@ -431,7 +463,7 @@ def get_science_file(
         # Check if using test data in instrument package
         if os.getenv("USE_INSTRUMENT_TEST_DATA") == "True":
             log.info("Using test data from instrument package")
-            return None
+            return Path(file_key)
 
         # Check if file path is specified in environment variables
         if os.getenv("SDC_AWS_FILE_PATH"):
@@ -464,7 +496,7 @@ def get_science_file(
         return file_path
     else:
         log.info("Dry Run - File will not be downloaded")
-        return None
+        return Path(file_key)
 
 
 def push_science_file(
