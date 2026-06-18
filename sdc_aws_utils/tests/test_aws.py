@@ -136,6 +136,11 @@ def test_create_s3_file_key():
     except ValueError as e:
         assert e is not None
 
+    # Test file key containing "latest"
+    test_latest_file_key = "hermes_EEA_l0_latest_2022335-200137_v01.bin"
+    valid_key = create_s3_file_key(parser, old_file_key=test_latest_file_key)
+    assert valid_key == "latest/hermes_EEA_l0_latest_2022335-200137_v01.bin"
+
 
 @mock_aws
 def test_object_exists():
