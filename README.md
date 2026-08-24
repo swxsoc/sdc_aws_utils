@@ -1,3 +1,5 @@
+This package has had all functionality migrated to the [swxsoc](https://github.com/swxsoc/swxsoc) package. 
+
 # sdc_aws_utils Python Package Library
 
 [![Release](https://img.shields.io/github/v/release/HERMES-SOC/sdc_aws_utils)](https://img.shields.io/github/v/release/HERMES-SOC/sdc_aws_utils)
